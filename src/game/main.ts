@@ -9,8 +9,8 @@ import { Preloader } from './scenes/Preloader';
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth - 1,
+    height: window.innerHeight - 1,
     parent: 'game-container',
     backgroundColor: '#028af8',
     physics: {
