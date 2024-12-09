@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
 import { Game } from "../game/scenes/Game";
 import { MainMenu } from "../game/scenes/MainMenu";
+import Player from "../game/prefabs/Player";
 // import { Navigate } from "../../node_modules/react-router-dom/dist/index";
 import { useNavigate } from 'react-router-dom';
 // import { useAuth0 } from "@auth0/auth0-react";
@@ -58,28 +59,56 @@ function HomePage() {
     let T: number;
 
     ws.onopen = (e) => {
-      const players = new Map<
-        number,
-        Phaser.Types.Physics.Arcade.SpriteWithDynamicBody
-      >();
+      const players = new Map<number, Player>();
+      closed = false;
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
 
-        if (data.position) {
-          const playerData = players.get(data.id);
-        if (playerData) {
-            playerData.sprite.setPosition(data.position.x, data.position.y); // Update sprite position
-            playerData.playerNameText.setPosition(data.position.x, data.position.y - 50); // Update name position
-        }
+        if (data.posi) {
+          const player = players.get(data.id);
+          if (!player) return;
+
+          const vx = data.posi.vx;
+          const vy = data.posi.vy;
+
+          if (vx < -40) player.anims.play("left", true);
+          else if (vx > 40) player.anims.play("right", true);
+          else player.anims.play("turn", true);
+
+          player.setPosition(data.posi.x, data.posi.y);
+          player.setVelocity(vx, vy);
         } else if (data.id) {
-          T = setInterval(() => {
-            ws.send(JSON.stringify({ id: data.id,name: "user", position: { x: scene.player.x, y: scene.player.y } }));
-          }, 1000 / 24);
+          const Update = () => {
+            if(closed) return;
+
+            const currTick = Date.now();
+
+            if(currTick - prevTick > 1000/16) {
+              ws.send(
+                JSON.stringify({
+                  id: data.id,
+                  posi: {
+                    x: Math.floor(scene.player?.x ?? 0),
+                    y: Math.floor(scene.player?.y ?? 0),
+                    vx: scene.vx,
+                    vy: scene.vy,
+                  },
+                })
+              );
+
+              prevTick = currTick;
+            }
+
+            requestAnimationFrame(Update);
+          };
+
+          requestAnimationFrame(Update);
         } else if (data.connection) {
-          // const playerSprite = scene.physics.add.sprite(400,300,"dude");
-          const player = scene.physics.add.sprite(400, 300, "dude");
+          if (players.has(data.connection)) return;
+          const player = new Player(scene, 400, 300, "dude", data.connection.toString());
           player.setBounce(0.2);
+          scene.physics.add.collider(player, scene.tables!);
           console.log("data is ",data);
           const playerNameText = scene.add.text(400, 250, data.playerNameText || 'usser', {
             // fontSize: "16px",
@@ -96,13 +125,17 @@ function HomePage() {
           players.delete(data.close);
         }
       };
+
+      ws.onclose = () => {
+        players.forEach((player) => player.destroy());
+        closed = true;
+      };
     };
 
     setWs(ws);
 
     return () => {
       ws.close();
-      clearInterval(T);
     };
   }, [canMoveSprite]);
 
