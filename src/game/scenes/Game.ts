@@ -18,7 +18,6 @@ export class Game extends Scene {
     scoreText?: GameObjects.Text;
     vx: number = 0;
     vy: number = 0;
-    playerNameText?:Phaser.GameObjects.text;
 
     onMove?: ((x: number, y: number) => void);
     
@@ -58,19 +57,6 @@ export class Game extends Scene {
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
-
-        //add Name to the user
-
-
-        this.playerNameText = this.add.text(this.player.x,this.player.y-50,'user',{
-            fontSize: '16px',
-            // color: '#ffffff',
-            fontStyle: 'bold',
-            // backgroundColor: '#000000',
-            padding: { left: 4, right: 4, top: 2, bottom: 2 },
-        });
-        // this.playerNameText.setOrigin(0.5);
-
 
         //  Our player animations, turning, walking left and walking right.
         this.anims.create({
@@ -168,39 +154,19 @@ export class Game extends Scene {
             // else this.player.y = WORLD_HEIGHT;
         }
 
-        if(vx && vy) {
-            vx *= Math.SQRT1_2;
-            vy *= Math.SQRT1_2;
+        if(this.vx && this.vy) {
+            this.vx *= Math.SQRT1_2;
+            this.vy *= Math.SQRT1_2;
         }
-        if(this.playerNameText){
-            this.playerNameText.setPosition(this.player.x,this.player.y-50);
-        }
-        this.player.setVelocityX(vx * PLAYER_VELOCITY);
-        this.player.setVelocityY(vy * PLAYER_VELOCITY);
+
+        this.player.setVelocityX(this.vx * PLAYER_VELOCITY);
+        this.player.setVelocityY(this.vy * PLAYER_VELOCITY);
 
         this.onMove && this.onMove(this.player.x, this.player.y);
 
-        // if (this.cursors.up.isDown && this.player.body.touching.down) {
-        //     this.player.setVelocityY(-330);
-        // }
-    }
-
         this.player.setVelocity(this.vx, this.vy);
-
-        // this.onMove && this.onMove(this.player.x, this.player.y);
     }
 
-    // hitBomb(player: any, bomb: any) {
-    //     this.physics.pause();
-
-    //     player.setTint(0xff0000);
-
-    //     player.anims.play('turn');
-
-    //     this.gameOver = true;
-
-    //     this.changeScene();
-    // }
 
     changeScene() {
         this.scene.start('GameOver');

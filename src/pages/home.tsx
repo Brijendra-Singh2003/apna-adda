@@ -56,7 +56,8 @@ function HomePage() {
     WS?.close();
     const scene = phaserRef.current.scene as Game;
     const ws = new WebSocket("ws://192.168.204.1:3000");
-    let T: number;
+    let closed: boolean = true;
+    let prevTick = Date.now();
 
     ws.onopen = (e) => {
       const players = new Map<number, Player>();
@@ -106,19 +107,11 @@ function HomePage() {
           requestAnimationFrame(Update);
         } else if (data.connection) {
           if (players.has(data.connection)) return;
-          const player = new Player(scene, 400, 300, "dude", data.connection.toString());
+          const player = new Player(scene, 400, 300, "dude", data.playerNameText || 'usser');
           player.setBounce(0.2);
           scene.physics.add.collider(player, scene.tables!);
-          console.log("data is ",data);
-          const playerNameText = scene.add.text(400, 250, data.playerNameText || 'usser', {
-            // fontSize: "16px",
-            // color: "#ffffff",
-            // fontStyle: "bold",
-            // backgroundColor: "#000000",
-            padding: { left: 4, right: 4, top: 2, bottom: 2 },
-        }).setOrigin(0.5);
 
-          players.set(data.connection, {sprite:player,playerNameText});
+          players.set(data.connection, player);
         } else if (data.close) {
           const player = players.get(data.close);
           player?.destroy();
