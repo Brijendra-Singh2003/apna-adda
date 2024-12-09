@@ -1,5 +1,6 @@
 import { EventBus } from '../EventBus';
 import { GameObjects, Scene } from 'phaser';
+import * as Phaser from 'phaser';
 
 const WORLD_HEIGHT = 1200;
 const WORLD_WIDTH = 1600;
@@ -14,6 +15,7 @@ export class Game extends Scene {
     score = 0;
     gameOver = false;
     scoreText?: GameObjects.Text;
+    playerNameText?:Phaser.GameObjects.text;
 
     onMove?: ((x: number, y: number) => void);
     
@@ -33,6 +35,7 @@ export class Game extends Scene {
     create() {
         this.gameOver = false;
 
+        
         //  A simple background for our game
         this.add.image(400, 300, 'sky');
         this.add.image(1200, 300, 'sky');
@@ -56,6 +59,19 @@ export class Game extends Scene {
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
+
+        //add Name to the user
+
+
+        this.playerNameText = this.add.text(this.player.x,this.player.y-50,'user',{
+            fontSize: '16px',
+            // color: '#ffffff',
+            fontStyle: 'bold',
+            // backgroundColor: '#000000',
+            padding: { left: 4, right: 4, top: 2, bottom: 2 },
+        });
+        // this.playerNameText.setOrigin(0.5);
+
 
         //  Our player animations, turning, walking left and walking right.
         this.anims.create({
@@ -124,7 +140,7 @@ export class Game extends Scene {
         if (this.gameOver || !this.player) {
             return;
         }
-
+        
         let vx = 0;
         let vy = 0;
 
@@ -157,7 +173,9 @@ export class Game extends Scene {
             vx *= Math.SQRT1_2;
             vy *= Math.SQRT1_2;
         }
-
+        if(this.playerNameText){
+            this.playerNameText.setPosition(this.player.x,this.player.y-50);
+        }
         this.player.setVelocityX(vx * PLAYER_VELOCITY);
         this.player.setVelocityY(vy * PLAYER_VELOCITY);
 
