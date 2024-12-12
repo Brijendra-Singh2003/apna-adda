@@ -1,22 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-// import React from "react";
 import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
 import { Game } from "../game/scenes/Game";
 import { MainMenu } from "../game/scenes/MainMenu";
 import Player from "../game/prefabs/Player";
-// import { Navigate } from "../../node_modules/react-router-dom/dist/index";
-import { useNavigate } from 'react-router-dom';
-// import { useAuth0 } from "@auth0/auth0-react";
-import { use } from "matter";
 import axios from "axios";
+
 function HomePage() {
-  const [canMoveSprite, setCanMoveSprite] = useState(false);
   const [WS, setWs] = useState<WebSocket>();
-  // const {user, isAuthenticated} = useAuth0();
-  const phaserRef = useRef<IRefPhaserGame | null>(null);
-  const navigate = useNavigate();
+  const [canMoveSprite, setCanMoveSprite] = useState(false);
   const [user,setUser] = useState(null);
   const [name,setName] = useState();
+
+  const phaserRef = useRef<IRefPhaserGame | null>(null);
+
   const changeScene = () => {
     if (phaserRef.current) {
       const scene = phaserRef.current.scene as MainMenu;
@@ -52,10 +48,12 @@ function HomePage() {
     }
 
     fetchSession();
+
     if (!canMoveSprite || !phaserRef.current?.scene) return;
+
     WS?.close();
     const scene = phaserRef.current.scene as Game;
-    const ws = new WebSocket("ws://192.168.204.1:3000");
+    const ws = new WebSocket("ws://localhost:3000");
     let closed: boolean = true;
     let prevTick = Date.now();
 

@@ -8,7 +8,7 @@ const PLAYER_VELOCITY = 160;
 
 export class Game extends Scene {
     player?: Phaser.Physics.Arcade.Sprite;
-    // stars?: Phaser.Physics.Arcade.Group;
+    floor?: Phaser.Physics.Arcade.Group;
     bombs?: Phaser.Physics.Arcade.Group;
     tables?: Phaser.Physics.Arcade.StaticGroup;
     // platforms?: Phaser.Physics.Arcade.StaticGroup;
@@ -27,7 +27,7 @@ export class Game extends Scene {
     }
 
     preload() {
-        this.load.image('floor', 'assets/floor.png');
+        this.load.image('floor', 'floor-tiles.png');
         // this.load.image('ground', 'assets/platform.png');
         this.load.image('table', 'assets/table.png');
         // this.load.image('star', 'assets/star.png');
@@ -40,7 +40,15 @@ export class Game extends Scene {
 
         
         //  A simple background for our game
-        // this.add.image(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 'floor').setScale(4);
+        // this.add.image(0, 0, 'floor');
+        this.add.tileSprite(
+            WORLD_WIDTH / 2, // Center the tile sprite horizontally
+            WORLD_HEIGHT / 2, // Center the tile sprite vertically
+            WORLD_WIDTH, // Full width of the world
+            WORLD_HEIGHT, // Full height of the world
+            'floor' // Key of the floor texture
+        );
+        
 
         //  The platforms group contains the ground and the 2 ledges we can jump on
         this.tables = this.physics.add.staticGroup();
@@ -53,11 +61,12 @@ export class Game extends Scene {
         this.tables.create(600, 400, "table").setScale(0.375).refreshBody();
 
         // The player: GameObjects.Sprite and its settings
-        this.player = this.physics.add.sprite(100, 450, 'dude');
+        this.player = this.physics.add.sprite(50, 50, 'dude');
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
 
+        
         //  Our player animations, turning, walking left and walking right.
         this.anims.create({
             key: 'left',
@@ -65,22 +74,24 @@ export class Game extends Scene {
             frameRate: 10,
             repeat: -1
         });
-
+        
         this.anims.create({
             key: 'turn',
             frames: [{ key: 'dude', frame: 4 }],
             frameRate: 20
         });
-
+        
         this.anims.create({
             key: 'right',
             frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
             frameRate: 10,
             repeat: -1
         });
-
+        
         //  Input Events
         this.cursors = this.input.keyboard?.createCursorKeys();
+        this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        this.player.setCollideWorldBounds();
 
         //  Some stars to collect, 12 in total, evenly spaced 70 pixels apart along the x axis
         // this.stars = this.physics.add.group({
@@ -112,7 +123,7 @@ export class Game extends Scene {
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
         // Set camera bounds to prevent it from moving outside the game world
-        // this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
         EventBus.emit('current-scene-ready', this);
     }
