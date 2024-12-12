@@ -10,7 +10,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Set properties like bounce
         this.setBounce(0.2);
-        // this.setCollideWorldBounds(true);
+        this.setCollideWorldBounds(true);
 
         // Add player name text
         this.playerName = scene.add.text(this.x, this.y - 20, name, {
