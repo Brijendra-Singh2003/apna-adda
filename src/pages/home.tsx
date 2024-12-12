@@ -68,15 +68,8 @@ function HomePage() {
           const player = players.get(data.id);
           if (!player) return;
 
-          const vx = data.posi.vx;
-          const vy = data.posi.vy;
-
-          if (vx < -40) player.anims.play("left", true);
-          else if (vx > 40) player.anims.play("right", true);
-          else player.anims.play("turn", true);
-
           player.setPosition(data.posi.x, data.posi.y);
-          player.setVelocity(vx, vy);
+          player.setSpeed(data.posi.vx, data.posi.vy);
         } else if (data.id) {
           const Update = () => {
             if(closed) return;

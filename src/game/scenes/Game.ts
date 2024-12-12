@@ -16,6 +16,8 @@ export class Game extends Scene {
     score = 0;
     gameOver = false;
     scoreText?: GameObjects.Text;
+    direction: 'down' | 'left' | 'up' | 'right' = "down";
+    state: 'idle' | 'walk' = 'idle';
     vx: number = 0;
     vy: number = 0;
 
@@ -37,12 +39,13 @@ export class Game extends Scene {
         // this.load.image('star', 'assets/star.png');
         // this.load.image('bomb', 'assets/bomb.png');
         this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('walk', 'Walk/walk.png', { frameWidth: 48, frameHeight: 64 });
+        this.load.spritesheet('idle', 'Idle/idle.png', { frameWidth: 48, frameHeight: 64 });
     }
 
     create() {
         this.gameOver = false;
 
-        
         //  A simple background for our game
         // this.add.image(0, 0, 'floor');
         // this.add.tileSprite(
@@ -70,33 +73,66 @@ export class Game extends Scene {
 
 
         // The player: GameObjects.Sprite and its settings
-        this.player = this.physics.add.sprite(50, 50, 'dude');
+        this.player = this.physics.add.sprite(50, 50, 'idle');
+        this.player.setScale(1.5);
+        this.player.body?.setSize(16, 16);
+        this.player.body?.setOffset(16, 28);
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
+        this.cameras.main.setBackgroundColor("#fff")
 
         
-        //  Our player animations, turning, walking left and walking right.
+        //  Our player animations, turning, walking left and walking right.        
         this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
+            key: 'idle_down',
+            frames: this.anims.generateFrameNumbers('idle', { start: 0, end: 7 }),
+            frameRate: 12,
+            repeat: -1,
         });
-        
         this.anims.create({
-            key: 'turn',
-            frames: [{ key: 'dude', frame: 4 }],
-            frameRate: 20
+            key: 'idle_left',
+            frames: this.anims.generateFrameNumbers('idle', { start: 8, end: 15 }),
+            frameRate: 12,
+            repeat: -1,
         });
-        
         this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
+            key: 'idle_right',
+            frames: this.anims.generateFrameNumbers('idle', { start: 40, end: 47 }),
+            frameRate: 12,
+            repeat: -1,
         });
-        
+        this.anims.create({
+            key: 'idle_up',
+            frames: this.anims.generateFrameNumbers('idle', { start: 24, end: 31 }),
+            frameRate: 12,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: 'walk_down',
+            frames: this.anims.generateFrameNumbers('walk', { start: 0, end: 7 }),
+            frameRate: 12,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: 'walk_left',
+            frames: this.anims.generateFrameNumbers('walk', { start: 8, end: 15 }),
+            frameRate: 12,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: 'walk_right',
+            frames: this.anims.generateFrameNumbers('walk', { start: 40, end: 47 }),
+            frameRate: 12,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: 'walk_up',
+            frames: this.anims.generateFrameNumbers('walk', { start: 24, end: 31 }),
+            frameRate: 12,
+            repeat: -1,
+        });
+
         //  Input Events
         this.cursors = this.input.keyboard?.createCursorKeys();
         this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
@@ -144,34 +180,23 @@ export class Game extends Scene {
 
         this.vx = 0;
         this.vy = 0;
-
-        if (this.cursors.left.isDown) {
-            this.player.anims.play('left', true);
-            
-            // if(this.player.x > 0) 
-                this.vx = -PLAYER_VELOCITY;
-            // else this.player.x = 0;
-        }
-        else if (this.cursors.right.isDown) {
-            this.player.anims.play('right', true);
-
-            // if(this.player.x < WORLD_WIDTH) 
-                this.vx = PLAYER_VELOCITY;
-            // else this.player.x = WORLD_WIDTH;
-        }
-        else {
-            this.player.anims.play('turn');
-        }
-
+        
         if (this.cursors.up.isDown) {
-            // if(this.player.y > 0) 
-                this.vy = -PLAYER_VELOCITY;
-            // else this.player.y = 0;
+            this.vy = -PLAYER_VELOCITY;
+            this.direction = "up";
         }
         else if (this.cursors.down.isDown) {
-            // if(this.player.y < WORLD_HEIGHT) 
-                this.vy = PLAYER_VELOCITY;
-            // else this.player.y = WORLD_HEIGHT;
+            this.vy = PLAYER_VELOCITY;
+            this.direction = "down";
+        }
+        
+        if (this.cursors.left.isDown) {
+            this.vx = -PLAYER_VELOCITY;
+            this.direction = "left";
+        }
+        else if (this.cursors.right.isDown) {
+            this.vx = PLAYER_VELOCITY;
+            this.direction = "right";
         }
 
         if(this.vx && this.vy) {
@@ -179,14 +204,11 @@ export class Game extends Scene {
             this.vy *= Math.SQRT1_2;
         }
 
-        this.player.setVelocityX(this.vx * PLAYER_VELOCITY);
-        this.player.setVelocityY(this.vy * PLAYER_VELOCITY);
-
-        this.onMove && this.onMove(this.player.x, this.player.y);
+        this.state = (this.vx || this.vy) ? "walk" : "idle";
+        this.player.anims.play(this.state + '_' + this.direction, true);
 
         this.player.setVelocity(this.vx, this.vy);
     }
-
 
     changeScene() {
         this.scene.start('GameOver');
