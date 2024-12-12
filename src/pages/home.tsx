@@ -65,7 +65,7 @@ function HomePage() {
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
-
+        // console.log("uper",data);
         if (data.posi) {
           const player = players.get(data.id);
           if (!player) return;
@@ -88,7 +88,7 @@ function HomePage() {
             if(currTick - prevTick > 1000/16) {
               ws.send(
                 JSON.stringify({
-                  id: data.id,
+                  id: data.id,  
                   posi: {
                     x: Math.floor(scene.player?.x ?? 0),
                     y: Math.floor(scene.player?.y ?? 0),
@@ -107,7 +107,8 @@ function HomePage() {
           requestAnimationFrame(Update);
         } else if (data.connection) {
           if (players.has(data.connection)) return;
-          const player = new Player(scene, 400, 300, "dude", data.playerNameText || 'usser');
+          console.log("data is ",data);
+          const player = new Player(scene, 400, 300, "dude", data.name || user?.user?.name);
           player.setBounce(0.2);
           scene.physics.add.collider(player, scene.tables!);
 
