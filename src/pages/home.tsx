@@ -18,10 +18,10 @@ type PlayerType = {
 
 type User = {
   user: {
-    name: string,
-    email: string,
-  }
-}
+    name: string;
+    email: string;
+  };
+};
 
 function HomePage() {
   const [WS, setWs] = useState<WebSocket>();
@@ -29,7 +29,15 @@ function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState("");
   const [isOpenText, setIsOpenText] = useState(false);
-
+  const [messages, setMessages] = useState([
+    { id: 1, text: "Hello! How can I help you today?", sender: "agent" },
+    { id: 2, text: "I have a question about my order", sender: "user" },
+    {
+      id: 3,
+      text: "Sure, I'd be happy to help. What's your order number?",
+      sender: "agent",
+    },
+  ]);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const fun = () => {
     console.log("function call hua hai");
@@ -123,11 +131,14 @@ function HomePage() {
               }
               console.log("user", e.username, "has", players.has(e.username));
               if (!players.has(e.username)) {
-                const newPlayer = new Player(scene, e.posi.x, e.posi.y, "player", e.username);
-                players.set(
-                  e.username,
-                  newPlayer
+                const newPlayer = new Player(
+                  scene,
+                  e.posi.x,
+                  e.posi.y,
+                  "player",
+                  e.username
                 );
+                players.set(e.username, newPlayer);
               }
               players.get(e.username)?.setSpeed(e.posi.vx, e.posi.vy);
               players.get(e.username)?.setPosition(e.posi.x, e.posi.y);
@@ -233,11 +244,10 @@ function HomePage() {
           </button>
         )}
       </div>
-      {isOpenText && <ChatSection />}
-      <PhaserGame
-        ref={phaserRef}
-        currentActiveScene={currentScene}
-      />
+      {isOpenText && (
+        <ChatSection message={messages} setMessages={setMessages} />
+      )}
+      <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
     </div>
   );
 }

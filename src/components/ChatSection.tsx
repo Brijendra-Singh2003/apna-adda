@@ -3,16 +3,27 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { MessageCircle, Send } from "lucide-react";
 
-const ChatPopup = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! How can I help you today?", sender: "agent" },
-    { id: 2, text: "I have a question about my order", sender: "user" },
-    {
-      id: 3,
-      text: "Sure, I'd be happy to help. What's your order number?",
-      sender: "agent",
-    },
-  ]);
+interface Message {
+  id: number;
+  text: string;
+  sender: "agent" | "user";
+}
+
+type ChatSectionProps = {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+};
+
+const ChatSection: React.FC<ChatSectionProps> = ({ messages, setMessages }) => {
+  // const [messages, setMessages] = useState([
+  //   { id: 1, text: "Hello! How can I help you today?", sender: "agent" },
+  //   { id: 2, text: "I have a question about my order", sender: "user" },
+  //   {
+  //     id: 3,
+  //     text: "Sure, I'd be happy to help. What's your order number?",
+  //     sender: "agent",
+  //   },
+  // ]);
   const [newMessage, setNewMessage] = useState("");
 
   const sendMessage = (e) => {
@@ -107,4 +118,4 @@ const ChatPopup = () => {
   );
 };
 
-export default ChatPopup;
+export default ChatSection;
