@@ -29,9 +29,13 @@ export class Game extends Scene {
     }
 
     preload() {
-        this.load.image('floor', 'floor-tiles.png');
-        // this.load.image('ground', 'assets/platform.png');
-        this.load.image('table', 'assets/table.png');
+        // this.load.image('floor', 'floor-tiles.png');
+        // this.load.image('floor', 'floor-tiles.png');
+
+        this.load.image('chair', 'chairFinal.png');
+        this.load.image('chair-l', 'chairFinalL.png');
+
+        this.load.image('table', 'tableAlone.png');
         // this.load.image('star', 'assets/star.png');
         // this.load.image('bomb', 'assets/bomb.png');
         this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
@@ -44,24 +48,29 @@ export class Game extends Scene {
 
         //  A simple background for our game
         // this.add.image(0, 0, 'floor');
-        this.add.tileSprite(
-            WORLD_WIDTH / 2, // Center the tile sprite horizontally
-            WORLD_HEIGHT / 2, // Center the tile sprite vertically
-            WORLD_WIDTH, // Full width of the world
-            WORLD_HEIGHT, // Full height of the world
-            'floor' // Key of the floor texture
-        );
+        // this.add.tileSprite(
+        //     WORLD_WIDTH / 2, // Center the tile sprite horizontally
+        //     WORLD_HEIGHT / 2, // Center the tile sprite vertically
+        //     WORLD_WIDTH*2, // Full width of the world
+        //     WORLD_HEIGHT*2, // Full height of the world
+        //     'floor' // Key of the floor texture
+        // // ).setScale(0.5);
         
 
         //  The platforms group contains the ground and the 2 ledges we can jump on
         this.tables = this.physics.add.staticGroup();
-
+        // this.chairs = this.physics.add.StaticGroup(); 
         //  Here we create the ground.
         //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
         // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
 
         //  Now let's create some ledges
-        this.tables.create(600, 400, "table").setScale(0.375).refreshBody();
+        this.tables.create(600, 400, "table").setScale(1).refreshBody();
+        this.tables.create(700, 380, "chair").setScale(1).refreshBody();
+        this.tables.create(500, 380, "chair-l").setScale(1).refreshBody();
+        this.cameras.main.setBackgroundColor("#dadada")
+        
+
 
         // The player: GameObjects.Sprite and its settings
         this.player = this.physics.add.sprite(50, 50, 'idle');
