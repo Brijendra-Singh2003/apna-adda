@@ -16,10 +16,17 @@ type PlayerType = {
   };
 };
 
+type User = {
+  user: {
+    name: string,
+    email: string,
+  }
+}
+
 function HomePage() {
   const [WS, setWs] = useState<WebSocket>();
   const [canMoveSprite, setCanMoveSprite] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState("");
   const [isOpenText, setIsOpenText] = useState(false);
 
@@ -48,7 +55,7 @@ function HomePage() {
     Game.onPlayerExitZone = fun2;
 
     if (scene.scene.key === "Game") {
-      const GameScene = phaserRef.current.scene as Game;
+      const GameScene = phaserRef.current?.scene as Game;
       if (GameScene) {
         setTimeout(() => {
           console.log("ab hoga na");
@@ -116,13 +123,14 @@ function HomePage() {
               }
               console.log("user", e.username, "has", players.has(e.username));
               if (!players.has(e.username)) {
+                const newPlayer = new Player(scene, e.posi.x, e.posi.y, "player", e.username);
                 players.set(
                   e.username,
-                  new Player(scene, e.posi.x, e.posi.y, "player", e.username)
+                  newPlayer
                 );
               }
-              players.get(e.username).setSpeed(e.posi.vx, e.posi.vy);
-              players.get(e.username).setPosition(e.posi.x, e.posi.y);
+              players.get(e.username)?.setSpeed(e.posi.vx, e.posi.vy);
+              players.get(e.username)?.setPosition(e.posi.x, e.posi.y);
             });
           }
         }
@@ -229,7 +237,6 @@ function HomePage() {
       <PhaserGame
         ref={phaserRef}
         currentActiveScene={currentScene}
-        userName={userName || "user-1"}
       />
     </div>
   );
