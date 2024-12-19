@@ -18,9 +18,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.body?.setOffset(16, 28);
 
         // Add player name text
-        this.playerName = scene.add.text(this.x, this.y - 20, name, {
-            fontSize: "8px",
-            color: "#ffffff"
+        this.playerName = scene.add.text(this.x, this.y - 32, name, {
+            fontSize: "16px",
+            color: "#ffffff",
+            backgroundColor: "#00000077"
         }).setOrigin(0.5);
 
         // Add update function for text positioning
@@ -40,7 +41,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Override update to keep the text above the player
     update() {
-        this.playerName?.setPosition(this.x, this.y - 24);
+        this.playerName?.setPosition(this.x, this.y - 32);
     }
 
     destroy(fromScene?: boolean): void {
