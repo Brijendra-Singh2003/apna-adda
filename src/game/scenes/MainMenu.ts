@@ -13,6 +13,9 @@ export class MainMenu extends Scene
     {
         super('MainMenu');
     }
+    setUserName(name: string) {
+        this.userName = name;
+      }
 
     create ()
     {

@@ -18,6 +18,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.body?.setOffset(16, 28);
 
         // Add player name text
+        
         this.playerName = scene.add.text(this.x, this.y - 20, name, {
             fontSize: "8px",
             color: "#ffffff"

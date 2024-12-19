@@ -1,5 +1,5 @@
 import { EventBus } from '../EventBus';
-import { GameObjects, Scene } from 'phaser';
+import { GameObjects, Scene,Geom } from 'phaser';
 import * as Phaser from 'phaser';
 
 const WORLD_HEIGHT = 1200;
@@ -11,18 +11,44 @@ export class Game extends Scene {
     floor?: Phaser.Physics.Arcade.Group;
     bombs?: Phaser.Physics.Arcade.Group;
     tables?: Phaser.Physics.Arcade.StaticGroup;
+    chairs?: Phaser.Physics.Arcade.StaticGroup;
+    popupText?: Phaser.GameObjects.text;
     // platforms?: Phaser.Physics.Arcade.StaticGroup;
     cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
     score = 0;
     gameOver = false;
-    scoreText?: GameObjects.Text;
     direction: 'down' | 'left' | 'up' | 'right' = "down";
     state: 'idle' | 'walk' = 'idle';
     vx: number = 0;
     vy: number = 0;
+    isInside: boolean = false;
 
-    onMove?: ((x: number, y: number) => void);
-    
+    static onPlayerEnterZone?: (() => void);
+    static onPlayerExitZone?: (() => void);
+
+    showPopup(){
+        if(this.popupText){
+            this.popupText.setVisible(true);
+        }else{
+            this.popupText = this.add.text(400,200,`hello bhaisahab`,{
+                fontSize: '32px',
+                color: '#ffffff',
+                backgroundColor: '#000000', // Optional background color
+                padding: { x: 10, y: 10 }, // Optional padding
+                align: 'center'  
+            }).setOrigin(0.5);
+        }
+    }
+    fun() {
+        if (Game.onPlayerEnterZone) {
+          console.log("Calling onPlayerEnterZone...");
+          Game.onPlayerEnterZone();
+      } else {
+          console.log("onPlayerEnterZone is undefined");
+      }
+      console.log("Player is inside the dark zone!");
+  }
+ 
     constructor ()
     {
         super('Game');
@@ -30,10 +56,30 @@ export class Game extends Scene {
 
     preload() {
         // this.load.image('floor', 'floor-tiles.png');
-        // this.load.image('floor', 'floor-tiles.png');
-
+        this.load.image('floor', 'grassTile.jpg');
+        this.load.image('home','./House/1.png')
         this.load.image('chair', 'chairFinal.png');
         this.load.image('chair-l', 'chairFinalL.png');
+        this.load.image('tree', 'trees.png');
+        this.load.image('fountain', 'fountain.png');
+        this.load.image('bench', 'bench.png');
+        this.load.image('bench-l', 'benchL.png');
+        this.load.image('table','interiors_demo.png')
+
+        this.load.spritesheet('assets', 'interiors_demo-1.png', {
+            frameWidth: 32, // Width of each frame
+            frameHeight: 32, // Height of each frame
+        });
+
+        this.load.spritesheet('assets-2', 'interiors_demo.png', {
+            frameWidth: 32, // Width of each frame
+            frameHeight: 32, // Height of each frame
+            margin:2,
+            spacing:2,
+        });
+        this.add.sprite(100, 100, 'assets', 0); // First frame
+        this.add.sprite(150, 100, 'assets', 1); // Second frame
+        
 
         this.load.image('table', 'tableAlone.png');
         // this.load.image('star', 'assets/star.png');
@@ -47,36 +93,90 @@ export class Game extends Scene {
         this.gameOver = false;
 
         //  A simple background for our game
-        // this.add.image(0, 0, 'floor');
-        // this.add.tileSprite(
-        //     WORLD_WIDTH / 2, // Center the tile sprite horizontally
-        //     WORLD_HEIGHT / 2, // Center the tile sprite vertically
-        //     WORLD_WIDTH*2, // Full width of the world
-        //     WORLD_HEIGHT*2, // Full height of the world
-        //     'floor' // Key of the floor texture
-        // // ).setScale(0.5);
+        this.add.image(0, 0, 'floor');
+        this.add.tileSprite(
+            WORLD_WIDTH / 2, // Center the tile sprite horizontally
+            WORLD_HEIGHT / 2, // Center the tile sprite vertically
+            WORLD_WIDTH*2, // Full width of the world
+            WORLD_HEIGHT*2, // Full height of the world
+            'floor' // Key of the floor texture
+        ).setScale(0.5);
         
 
         //  The platforms group contains the ground and the 2 ledges we can jump on
         this.tables = this.physics.add.staticGroup();
-        // this.chairs = this.physics.add.StaticGroup(); 
+        this.chairs = this.physics.add.staticGroup(); 
         //  Here we create the ground.
         //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
         // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
 
-        //  Now let's create some ledges
-        this.tables.create(600, 400, "table").setScale(1).refreshBody();
-        this.tables.create(700, 380, "chair").setScale(1).refreshBody();
-        this.tables.create(500, 380, "chair-l").setScale(1).refreshBody();
-        this.cameras.main.setBackgroundColor("#dadada")
+
+       // Replace circle with rectangle for reliable physics
+        this.darkZone = new Geom.Rectangle(400, 250, 400, 300);
+        this.darkCarpet = this.add.rectangle(600, 380, 400, 280, 0x000002, 0.5);
+        this.physics.add.existing(this.darkCarpet, true);
+        this.darkCarpet.body.setSize(280, 280);
+
+
+        // Debug physics bodies
+        this.physics.world.createDebugGraphic();
+    
+
+
+        // this.tables    
+        this.tables.create(600, 380, "table").setScale(2)?.setSize(100,76).setOffset(-25,-15);
+        this.chairs.create(700, 380, "assets",7).setScale(2).refreshBody()?.setSize(20,24);
+        this.chairs.create(500, 380, "assets",5).setScale(2).refreshBody()?.setSize(20,24);
+        this.chairs.create(1200, 600, "fountain").setScale(1).refreshBody()?.setSize(20,24);
+        this.chairs.create(1350, 600, "bench").setScale(0.25).refreshBody()?.setSize(20,24);
+        this.chairs.create(1050, 600, "bench-l").setScale(0.25).refreshBody()?.setSize(20,24);
+        this.chairs.create(100,100, "home").setScale(1).refreshBody()?.setSize(20,24);
+
         
+            //  Now let's create some ledges
+        this.player = this.physics.add.sprite(100, 100, "player");
+        this.player.setCollideWorldBounds(true);     
+        // Add overlap check
+        
+        this.physics.add.overlap(this.player, this.darkZone, () => {
+            Game.onPlayerEnterZone(); 
+            this.isInside  = true;
+            // this.showPopup();
+        }, null, this);
+        // for(let)
+        // this.chairs.create(100, 100, "tree").setScale(0.5).refreshBody()?.setSize(20,24);
+
+        this.trees = this.physics.add.group({
+            key: 'tree',
+            repeat: 12,
+            setXY: { x: 40, y: 30, stepX: 100 },
+            createCallback: (tree) => {
+                tree.setScale(0.5); // Set the scale here
+                tree.refreshBody(); // Refresh the physics body if necessary
+            },
+        });
+
+        this.trees = this.physics.add.group({
+            key: 'tree',
+            repeat: 12,
+            setXY: { x: 40, y: 30, stepY: 100 },
+            createCallback: (tree) => {
+                tree.setScale(0.5); // Set the scale here
+                tree.refreshBody(); // Refresh the physics body if necessary
+            },
+        });
+        this.cameras.main.setBackgroundColor("#dadada")
 
 
         // The player: GameObjects.Sprite and its settings
-        this.player = this.physics.add.sprite(50, 50, 'idle');
+        // this.player = this.physics.add.sprite(50, 50, 'idle');
         this.player.setScale(1.5);
         this.player.body?.setSize(16, 16);
         this.player.body?.setOffset(16, 28);
+        this.tables.body?.setSize(16,16);
+        this.chairs.body?.setSize(16,16);
+
+
 
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
@@ -138,12 +238,9 @@ export class Game extends Scene {
         this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         this.player.setCollideWorldBounds();
 
+
         //  Some stars to collect, 12 in total, evenly spaced 70 pixels apart along the x axis
-        // this.stars = this.physics.add.group({
-        //     key: 'star',
-        //     repeat: 11,
-        //     setXY: { x: 7, y: 100, stepX: 70 }
-        // });
+       
 
         // this.stars.children.iterate(function (child) {
 
@@ -155,10 +252,11 @@ export class Game extends Scene {
         this.bombs = this.physics.add.group();
 
         //  The score
-        this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px' });
 
         //  Collide the player and the stars with the platforms
         this.physics.add.collider(this.player, this.tables);
+        this.physics.add.collider(this.player, this.chairs);
+
 
         //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
         // this.physics.add.overlap(this.player, this.stars, this.collectStar, undefined, this);
@@ -172,6 +270,8 @@ export class Game extends Scene {
 
         EventBus.emit('current-scene-ready', this);
     }
+
+    
 
     update() {
         if (this.gameOver || !this.player || !this.cursors) {
@@ -208,9 +308,32 @@ export class Game extends Scene {
         this.player.anims.play(this.state + '_' + this.direction, true);
 
         this.player.setVelocity(this.vx, this.vy);
+
+        if(this?.darkZone?.contains(this.player.x,this.player.y)){
+            if(this.isInside){
+                return;
+            }
+            this.isInside = true;
+            if(Game.onPlayerEnterZone){
+                this.showPopup();
+                Game.onPlayerEnterZone();
+            }
+
+        }else{
+            if(!this.isInside){
+                return;
+            }else{
+                this.popupText.setVisible(false);
+                if(Game.onPlayerExitZone) {
+                    Game.onPlayerExitZone();
+                }
+                this.isInside = false;
+            }
+        }
     }
 
     changeScene() {
         this.scene.start('GameOver');
     }
+    
 }
