@@ -245,7 +245,7 @@ function HomePage() {
         )}
       </div>
       {isOpenText && (
-        <ChatSection message={messages} setMessages={setMessages} />
+        <ChatSection messages={messages} setMessages={setMessages} />
       )}
       <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
     </div>
