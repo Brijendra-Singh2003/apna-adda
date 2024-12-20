@@ -3,9 +3,13 @@ import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
 import { Game } from "../game/scenes/Game";
 import { MainMenu } from "../game/scenes/MainMenu";
 import Player from "../game/prefabs/Player";
-import ChatSection from "../components/ChatSection";
+import ChatSection, { Message } from "../components/ChatSection";
 import axios from "axios";
-
+// type MessageType = {
+//   id: number;
+//   text: string;
+//   sender: "agent" | "user";
+// };
 type PlayerType = {
   username: string;
   posi: {
@@ -14,6 +18,7 @@ type PlayerType = {
     vx: number;
     vy: number;
   };
+  messages: Message[];
 };
 
 type User = {
@@ -29,23 +34,30 @@ function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState("");
   const [isOpenText, setIsOpenText] = useState(false);
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! How can I help you today?", sender: "agent" },
-    { id: 2, text: "I have a question about my order", sender: "user" },
-    {
-      id: 3,
-      text: "Sure, I'd be happy to help. What's your order number?",
-      sender: "agent",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+
   const phaserRef = useRef<IRefPhaserGame | null>(null);
+
+  const onMessage = (text: string) => {
+    if (WS?.readyState !== WS?.CLOSED) {
+      WS?.send(
+        JSON.stringify({
+          type: "messages",
+          data: text,
+        })
+      );
+    }
+  };
+
   const fun = () => {
     console.log("function call hua hai");
     setIsOpenText(true);
   };
+
   const fun2 = () => {
     setIsOpenText(false);
   };
+
   const changeScene = () => {
     if (phaserRef.current) {
       const scene = phaserRef.current.scene as MainMenu;
@@ -120,16 +132,16 @@ function HomePage() {
       );
 
       ws.onmessage = (e) => {
-        const messege = JSON.parse(e.data);
+        const message = JSON.parse(e.data);
         // console.log("uper",data);
 
-        switch (messege.type) {
+        switch (message.type) {
           case "update": {
-            messege.data.forEach((e: PlayerType) => {
+            message.data.forEach((e: PlayerType) => {
               if (e.username === myUsername) {
                 return;
               }
-              console.log("user", e.username, "has", players.has(e.username));
+
               if (!players.has(e.username)) {
                 const newPlayer = new Player(
                   scene,
@@ -138,11 +150,20 @@ function HomePage() {
                   "player",
                   e.username
                 );
+                // setMessages([...messages,...e.messages]);
                 players.set(e.username, newPlayer);
               }
+
               players.get(e.username)?.setSpeed(e.posi.vx, e.posi.vy);
               players.get(e.username)?.setPosition(e.posi.x, e.posi.y);
             });
+            break;
+          }
+          case "messages": {
+            const data = message.data;
+            console.log("got messages", data);
+            setMessages(data);
+            break;
           }
         }
 
@@ -202,6 +223,7 @@ function HomePage() {
                 vx: scene.vx,
                 vy: scene.vy,
               },
+              // messages,
             },
           })
         );
@@ -244,10 +266,18 @@ function HomePage() {
           </button>
         )}
       </div>
-      {isOpenText && (
-        <ChatSection messages={messages} setMessages={setMessages} />
+      {isOpenText && user?.user.name && (
+        <ChatSection
+          messages={messages}
+          onMessage={onMessage}
+          userName={user.user.name}
+        />
       )}
-      <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+      {user?.user.name ? (
+        <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+      ) : (
+        <h1>Please login to continue</h1>
+      )}
     </div>
   );
 }
