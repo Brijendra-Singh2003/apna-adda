@@ -39,13 +39,15 @@ function HomePage() {
   const phaserRef = useRef<IRefPhaserGame | null>(null);
 
   const onMessage = (text: string) => {
-    if(WS?.readyState !== WS?.CLOSED) {
-      WS?.send(JSON.stringify({
-        type: "messages",
-        data: text,
-      }));
+    if (WS?.readyState !== WS?.CLOSED) {
+      WS?.send(
+        JSON.stringify({
+          type: "messages",
+          data: text,
+        })
+      );
     }
-  }
+  };
 
   const fun = () => {
     console.log("function call hua hai");
@@ -101,9 +103,12 @@ function HomePage() {
     console.log({ canMoveSprite });
     // setUserName('JohnDoe');
     const fetchSession = async () => {
-      const result = await axios.get("http://localhost:3000/check-session", {
-        withCredentials: true,
-      });
+      const result = await axios.get(
+        "http://localhost:3000/auth/check-session",
+        {
+          withCredentials: true,
+        }
+      );
       console.log("the user data is ", result.data);
       if (result.data) {
         setUser(result.data);
@@ -120,7 +125,7 @@ function HomePage() {
     const ws = new WebSocket("ws://localhost:3000");
     const myUsername = user?.user?.name;
     let closed: boolean = true;
-    let prevTick = Date.now();
+    // let prevTick = Date.now();
 
     ws.onopen = (e) => {
       const players = new Map<string, Player>();
@@ -158,11 +163,17 @@ function HomePage() {
             break;
           }
           case "messages": {
-              const data = message.data;
-              console.log("got messages", data);
-              setMessages(data);
-              break;
-            }
+            const data = message.data;
+            console.log("got messages", data);
+            setMessages(data);
+            break;
+          }
+          case "leave": {
+            const player = players.get(message.data.username);
+            player?.destroy();
+            players.delete(message.data.username);
+            break;
+          }
         }
 
         // if (messege.posi) {
