@@ -46,7 +46,15 @@ function HomePage() {
           data: text,
         })
       );
+    if (WS?.readyState !== WS?.CLOSED) {
+      WS?.send(
+        JSON.stringify({
+          type: "messages",
+          data: text,
+        })
+      );
     }
+  };
   };
 
   const fun = () => {
