@@ -59,7 +59,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
             <ScrollArea.Root className="flex-1 p-4 bg-gray-700">
               <ScrollArea.Viewport className="h-full w-full">
                 <div className="space-y-4">
-                  {messages.map((message) => (
+                  {messages.length > 0 ? messages.map((message) => (
                     <div
                       key={message.id}
                       className={cn(
@@ -74,7 +74,11 @@ const ChatSection: React.FC<ChatSectionProps> = ({
                       </div>
                       <div className="text-sm px-2 py-1">{message.text}</div>
                     </div>
-                  ))}
+                  )) : (
+                    <div>
+                      Say Hi!
+                    </div>
+                  )}
                 </div>
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar
