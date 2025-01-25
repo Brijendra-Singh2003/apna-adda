@@ -19,11 +19,11 @@ export class Game extends Scene {
     gameOver = false;
     direction: 'down' | 'left' | 'up' | 'right' = "down";
     state: 'idle' | 'walk' = 'idle';
-    vx: number = 0;
+    vx: number = 0; 
     vy: number = 0;
     isInside: boolean = false;
 
-    static onPlayerEnterZone?: (() => void);
+    static onPlayerEnterZone?: ((a:string) => void);
     static onPlayerExitZone?: (() => void);
 
     showPopup(){
@@ -39,15 +39,15 @@ export class Game extends Scene {
             }).setOrigin(0.5);
         }
     }
-    fun() {
-        if (Game.onPlayerEnterZone) {
-          console.log("Calling onPlayerEnterZone...");
-          Game.onPlayerEnterZone();
-      } else {
-          console.log("onPlayerEnterZone is undefined");
-      }
-      console.log("Player is inside the dark zone!");
-  }
+//     fun() {
+//         if (Game.onPlayerEnterZone) {
+//           console.log("Calling onPlayerEnterZone...");
+//           Game.onPlayerEnterZone("a");
+//       } else {
+//           console.log("onPlayerEnterZone is undefined");
+//       }
+//       console.log("Player is inside the dark zone!");
+//   }
  
     constructor ()
     {
@@ -111,14 +111,9 @@ export class Game extends Scene {
         // this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
 
 
-       // Replace circle with rectangle for reliable physics
-        this.darkZone = new Geom.Rectangle(400, 250, 400, 300);
-        this.darkCarpet = this.add.rectangle(600, 380, 400, 280, 0x000002, 0.5);
-        this.physics.add.existing(this.darkCarpet, true);
-        this.darkCarpet.body.setSize(280, 280);
+      
 
-
-        // Debug physics bodies
+        // Debug physics bodies 
         this.physics.world.createDebugGraphic();
     
 
@@ -136,16 +131,33 @@ export class Game extends Scene {
             //  Now let's create some ledges
         this.player = this.physics.add.sprite(100, 100, "player");
         this.player.setCollideWorldBounds(true);     
+
+         // Carpet for room 1
+         this.darkZone = new Geom.Rectangle(400, 250, 400, 300);
+         this.darkCarpet = this.add.rectangle(600, 380, 400, 280, 0x000002, 0.5);
+         this.physics.add.existing(this.darkCarpet, true);
+         this.darkCarpet.body.setSize(280, 280);
+         // carper for room 2
+         this.darkZone2 = new Geom.Rectangle(1000, 400, 400, 280);
+         this.darkCarpet2 = this.add.rectangle(1200, 600, 400, 280, 0x000002, 0.5);
+         this.physics.add.existing(this.darkCarpet2, true);
+         this.darkCarpet2.body.setSize(280, 280);
+         this.darkCarpet2.body.setOffset(60, 0); 
         // Add overlap check
         
         this.physics.add.overlap(this.player, this.darkZone, () => {
-            Game.onPlayerEnterZone(); 
+            Game.onPlayerEnterZone("table"); 
             this.isInside  = true;
-            // this.showPopup();
         }, null, this);
-        // for(let)
-        // this.chairs.create(100, 100, "tree").setScale(0.5).refreshBody()?.setSize(20,24);
 
+
+        this.physics.add.overlap(this.player, this.darkZone2, () => {
+            Game.onPlayerEnterZone("fountain"); 
+            console.log("andar hua");
+            this.isInside  = true;
+        }, null, this);
+        
+       
         this.trees = this.physics.add.group({
             key: 'tree',
             repeat: 12,
@@ -165,9 +177,8 @@ export class Game extends Scene {
                 tree.refreshBody(); // Refresh the physics body if necessary
             },
         });
-        this.cameras.main.setBackgroundColor("#dadada")
-
-
+        
+        
         // The player: GameObjects.Sprite and its settings
         // this.player = this.physics.add.sprite(50, 50, 'idle');
         this.player.setScale(1.5);
@@ -175,11 +186,9 @@ export class Game extends Scene {
         this.player.body?.setOffset(16, 28);
         this.tables.body?.setSize(16,16);
         this.chairs.body?.setSize(16,16);
-
-
-
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
+        this.cameras.main.setBackgroundColor("#dadada")
         this.cameras.main.setBackgroundColor("#fff")
 
         
@@ -309,27 +318,34 @@ export class Game extends Scene {
 
         this.player.setVelocity(this.vx, this.vy);
 
-        if(this?.darkZone?.contains(this.player.x,this.player.y)){
+        if(this?.darkZone?.contains(this.player.x,this.player.y) || this?.darkZone2?.contains(this.player.x,this.player.y)){
             if(this.isInside){
                 return;
             }
             this.isInside = true;
             if(Game.onPlayerEnterZone){
-                this.showPopup();
-                Game.onPlayerEnterZone();
+                // this.showPopup();
+                console.log("bye");
+                if(this?.darkZone?.contains(this.player.x,this.player.y)){
+                    Game.onPlayerEnterZone("table");    
+                }else{
+                    Game.onPlayerEnterZone("fountain");
+                }
             }
 
         }else{
             if(!this.isInside){
                 return;
             }else{
-                this.popupText.setVisible(false);
+                // this.popupText.setVisible(false);
                 if(Game.onPlayerExitZone) {
                     Game.onPlayerExitZone();
                 }
                 this.isInside = false;
             }
         }
+
+    
     }
 
     changeScene() {

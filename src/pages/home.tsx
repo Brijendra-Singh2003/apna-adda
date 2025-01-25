@@ -35,7 +35,7 @@ function HomePage() {
   const [userName, setUserName] = useState("");
   const [isOpenText, setIsOpenText] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-
+  const [roomID, setRoomId] = useState("");
   const phaserRef = useRef<IRefPhaserGame | null>(null);
 
   const onMessage = (text: string) => {
@@ -43,19 +43,36 @@ function HomePage() {
       WS?.send(
         JSON.stringify({
           type: "messages",
-          data: text,
+          data: { text, room: roomID },
         })
       );
     }
   };
 
-  const fun = () => {
-    console.log("function call hua hai");
+  const fun = (a: string) => {
+    console.log("function call hua hai", a);
     setIsOpenText(true);
+    setRoomId(a);
+
+    console.log("sss", WS?.readyState !== WS?.CLOSED);
+    WS?.send(
+      JSON.stringify({
+        type: "enter",
+        data: { room: a },
+      })
+    );
   };
 
   const fun2 = () => {
     setIsOpenText(false);
+    if (WS?.readyState !== WS?.CLOSED) {
+      WS?.send(
+        JSON.stringify({
+          type: "exit",
+          data: { room: roomID },
+        })
+      );
+    }
   };
 
   const changeScene = () => {
@@ -68,11 +85,11 @@ function HomePage() {
     }
   };
 
+  Game.onPlayerEnterZone = fun; // Assign the callback
+  Game.onPlayerExitZone = fun2;
   // Event emitted from the PhaserGame component
   const currentScene = (scene: Phaser.Scene) => {
     setCanMoveSprite(scene.scene.key === "Game");
-
-    Game.onPlayerExitZone = fun2;
 
     if (scene.scene.key === "Game") {
       const GameScene = phaserRef.current?.scene as Game;
@@ -80,7 +97,6 @@ function HomePage() {
         setTimeout(() => {
           console.log("ab hoga na");
           if (!Game.onPlayerEnterZone) {
-            Game.onPlayerEnterZone = fun; // Assign the callback
             console.log("assiign hogays");
             // fun();
           } else {
@@ -127,8 +143,12 @@ function HomePage() {
     ws.onopen = (e) => {
       const players = new Map<string, Player>();
       closed = false;
+      console.log(roomID);
       ws.send(
-        JSON.stringify({ type: "init", data: { username: user?.user?.name } })
+        JSON.stringify({
+          type: "init",
+          data: { username: user?.user?.name, room: roomID },
+        })
       );
 
       ws.onmessage = (e) => {
