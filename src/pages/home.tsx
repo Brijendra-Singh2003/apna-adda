@@ -4,6 +4,7 @@ import { Game } from "../game/scenes/Game";
 import { MainMenu } from "../game/scenes/MainMenu";
 import Player from "../game/prefabs/Player";
 import ChatSection, { Message } from "../components/ChatSection";
+import CallSection from "../components/CallSection";
 import axios from "axios";
 // type MessageType = {
 //   id: number;
@@ -37,6 +38,8 @@ function HomePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [roomID, setRoomId] = useState("");
   const phaserRef = useRef<IRefPhaserGame | null>(null);
+
+  console.log("parent rerenderion.....");
 
   const onMessage = (text: string) => {
     if (WS?.readyState !== WS?.CLOSED) {
@@ -279,6 +282,8 @@ function HomePage() {
           Change Scene
         </button>
 
+        {isOpenText && <CallSection socket={WS} />}
+
         {user ? (
           <button
             onClick={handleGoogleLogOut}
@@ -300,6 +305,7 @@ function HomePage() {
           messages={messages}
           onMessage={onMessage}
           userName={user.user.name}
+          WebSocket={WS}
         />
       )}
       {user?.user.name ? (

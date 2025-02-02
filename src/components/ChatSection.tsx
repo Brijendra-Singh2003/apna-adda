@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { MessageCircle, Send } from "lucide-react";
@@ -22,7 +22,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
   userName,
 }) => {
   const [newMessage, setNewMessage] = useState("");
-
+  const videoRef = useRef(null);
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -57,30 +57,34 @@ const ChatSection: React.FC<ChatSectionProps> = ({
             className="flex flex-col h-[500px] overflow-auto scroll-smooth"
           >
             <ScrollArea.Root className="flex-1 p-4 bg-gray-700">
-              <ScrollArea.Viewport className="h-full w-full">
+              <ScrollArea.Viewport className="h-full w-full flex">
                 <div className="space-y-4">
-                  {messages.length > 0 ? messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={cn(
-                        "rounded overflow-hidden w-fit max-w-[80%]",
-                        message.sender === userName
-                          ? "justify-end bg-blue-500 text-white ml-auto"
-                          : "justify-start bg-gray-100 text-gray-900"
-                      )}
-                    >
-                      <div className="text-xs bg-black/10 px-2 py-0.5 font-semibold">
-                        {message.sender}
+                  {messages.length > 0 ? (
+                    messages?.map((message) => (
+                      <div
+                        key={message.id}
+                        className={cn(
+                          "rounded overflow-hidden w-fit max-w-[80%]",
+                          message.sender === userName
+                            ? "justify-end bg-blue-500 text-white ml-auto"
+                            : "justify-start bg-gray-100 text-gray-900"
+                        )}
+                      >
+                        <div className="text-xs bg-black/10 px-2 py-0.5 font-semibold">
+                          {message.sender}
+                        </div>
+                        <div className="text-sm px-2 py-1">{message.text}</div>
                       </div>
-                      <div className="text-sm px-2 py-1">{message.text}</div>
-                    </div>
-                  )) : (
-                    <div>
-                      Say Hi!
-                    </div>
+                    ))
+                  ) : (
+                    <div>Say Hi!</div>
                   )}
                 </div>
               </ScrollArea.Viewport>
+              <div className="">
+                <video id="localVideo" autoplay playsinline></video>
+                <video id="remoteVideo" autoplay playsinline></video>
+              </div>
               <ScrollArea.Scrollbar
                 className="flex select-none touch-none p-0.5 bg-gray-100 transition-colors duration-150 ease-out hover:bg-gray-200 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2"
                 orientation="vertical"
@@ -111,6 +115,13 @@ const ChatSection: React.FC<ChatSectionProps> = ({
               </div>
             </form>
           </div>
+
+          <button onclick="startCall()" className=" border p-2">
+            Start Call
+          </button>
+          <button onclick="endCall()" className="border p-2">
+            End Call
+          </button>
 
           <Dialog.Close className="absolute top-4 right-4 opacity-70 hover:opacity-100">
             ✕
