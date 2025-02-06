@@ -6,6 +6,7 @@ import Player from "../game/prefabs/Player";
 import ChatSection, { Message } from "../components/ChatSection";
 import CallSection from "../components/CallSection";
 import axios from "axios";
+
 // type MessageType = {
 //   id: number;
 //   text: string;
@@ -37,6 +38,7 @@ function HomePage() {
   const [isOpenText, setIsOpenText] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [roomID, setRoomId] = useState("");
+  const [notify, SetNotify] = useState(false);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
 
   console.log("parent rerenderion.....");
@@ -54,8 +56,8 @@ function HomePage() {
 
   const fun = (a: string) => {
     console.log("function call hua hai", a);
-    setIsOpenText(true);
     setRoomId(a);
+    setIsOpenText(true);
 
     console.log("sss", WS?.readyState !== WS?.CLOSED);
     WS?.send(
@@ -189,6 +191,8 @@ function HomePage() {
             const data = message.data;
             console.log("got messages", data);
             setMessages(data);
+            console.log(message.notify);
+            SetNotify(true);
             break;
           }
           case "leave": {
@@ -279,11 +283,10 @@ function HomePage() {
     <div id="app" className="">
       <div className="flex gap-6  text-black w-full">
         <button onClick={changeScene} className="bg-slate-50 text-black w-1/2">
-          Change Scene
+          Change Scene ${roomID}
         </button>
 
-        {isOpenText && <CallSection socket={WS} />}
-
+        {isOpenText && roomID && <CallSection socket={WS} RoomId={roomID} />}
         {user ? (
           <button
             onClick={handleGoogleLogOut}
@@ -306,6 +309,7 @@ function HomePage() {
           onMessage={onMessage}
           userName={user.user.name}
           WebSocket={WS}
+          notify={notify}
         />
       )}
       {user?.user.name ? (

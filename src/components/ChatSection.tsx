@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { MessageCircle, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MdMarkUnreadChatAlt } from "react-icons/md";
 
 export interface Message {
   id: number;
@@ -20,6 +21,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
   messages,
   onMessage,
   userName,
+  notify,
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const videoRef = useRef(null);
@@ -41,7 +43,19 @@ const ChatSection: React.FC<ChatSectionProps> = ({
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <button className="fixed bottom-4 right-4 rounded-full h-12 w-12 p-0 bg-blue-500 text-white hover:bg-blue-600 flex items-center justify-center">
-          <MessageCircle className="h-6 w-6" />
+          {notify ? (
+            <>
+              {" "}
+              <MdMarkUnreadChatAlt />
+              {notify}
+            </>
+          ) : (
+            <>
+              {/* {2 - notify} */}
+              <MessageCircle className="h-6 w-6" />
+            </>
+          )}
+          {/*  */}
         </button>
       </Dialog.Trigger>
 

@@ -8,11 +8,17 @@ const iceServers = [
 ];
 const iceCandidatePoolSize = 10;
 
-export default function CallSection({ socket }: { socket: WebSocket }) {
+export default function CallSection({
+  socket,
+  RoomId,
+}: {
+  socket: WebSocket;
+  RoomId: string;
+}) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const hasJoined = useRef(false); // To prevent sending multiple "join" messages
   const peerConnections = useRef(new Map<string, RTCPeerConnection>()); // Use ref for stable reference
-
+  console.log(RoomId);
   const [videoEle, setVideoEle] = useState<
     {
       id: string;
@@ -66,6 +72,7 @@ export default function CallSection({ socket }: { socket: WebSocket }) {
                 type: "offer",
                 receiverId: client,
                 data: offerDescription,
+                room: RoomId,
               })
             );
           }
@@ -107,6 +114,7 @@ export default function CallSection({ socket }: { socket: WebSocket }) {
               type: "answer",
               data: answer,
               receiverId: senderId,
+              room: RoomId,
             })
           );
 
@@ -230,12 +238,13 @@ export default function CallSection({ socket }: { socket: WebSocket }) {
   }, [socket]);
 
   useEffect(() => {
-    if (!localStream) return;
-
+    console.log("enter in room ", RoomId);
+    if (!localStream || !RoomId) return;
     if (!hasJoined.current && socket?.readyState === WebSocket.OPEN) {
       socket.send(
         JSON.stringify({
           type: "join",
+          room: RoomId,
         })
       );
       hasJoined.current = true;
@@ -245,13 +254,13 @@ export default function CallSection({ socket }: { socket: WebSocket }) {
     return () => {
       socket.removeEventListener("message", handleSocketMessages);
     };
-  }, [localStream]);
+  }, [localStream, RoomId]);
 
   return (
     <div
       id="video"
       className="bg-gray-500 fixed top-16 left-36 flex flex-wrap gap-8"
-    > 
+    >
       <video
         id="my-video"
         className="h-28 object-cover aspect-video"
