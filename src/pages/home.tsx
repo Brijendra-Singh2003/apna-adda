@@ -150,7 +150,7 @@ function HomePage() {
 
     ws.onopen = () => {
       const players = new Map<string, Player>();
-      closed = false;
+      // closed = false;
       console.log(roomID);
       ws.send(
         JSON.stringify({
@@ -267,7 +267,7 @@ function HomePage() {
 
       ws.onclose = () => {
         players.forEach((player) => player.destroy());
-        closed = true;
+        // closed = true;
         clearInterval(id);
       };
     };
