@@ -38,7 +38,7 @@ export default function CallSection({
     });
 
     // Add tracks from localStream to the peer connection
-    localStream.getTracks().forEach((track) => {
+    localStream.getTracks().forEach((track: any) => {
       pc.addTrack(track, localStream);
     });
 
@@ -51,7 +51,7 @@ export default function CallSection({
   const handleSocketMessages = async (event: MessageEvent) => {
     try {
       let pc;
-      let video;
+      // let video;
       let mediaStream: MediaStream;
       let senderId: string;
       const message = JSON.parse(event.data);

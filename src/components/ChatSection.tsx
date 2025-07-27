@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { MessageCircle, Send } from "lucide-react";
@@ -15,6 +15,7 @@ type ChatSectionProps = {
   messages: Message[];
   onMessage: (text: string) => void;
   userName: string;
+  notify: boolean | string;
 };
 
 const ChatSection: React.FC<ChatSectionProps> = ({
@@ -24,7 +25,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
   notify,
 }) => {
   const [newMessage, setNewMessage] = useState("");
-  const videoRef = useRef(null);
+  // const videoRef = useRef(null);
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -95,10 +96,10 @@ const ChatSection: React.FC<ChatSectionProps> = ({
                   )}
                 </div>
               </ScrollArea.Viewport>
-              <div className="">
+              {/* <div className="">
                 <video id="localVideo" autoplay playsinline></video>
                 <video id="remoteVideo" autoplay playsinline></video>
-              </div>
+              </div> */}
               <ScrollArea.Scrollbar
                 className="flex select-none touch-none p-0.5 bg-gray-100 transition-colors duration-150 ease-out hover:bg-gray-200 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2"
                 orientation="vertical"
@@ -129,13 +130,6 @@ const ChatSection: React.FC<ChatSectionProps> = ({
               </div>
             </form>
           </div>
-
-          <button onclick="startCall()" className=" border p-2">
-            Start Call
-          </button>
-          <button onclick="endCall()" className="border p-2">
-            End Call
-          </button>
 
           <Dialog.Close className="absolute top-4 right-4 opacity-70 hover:opacity-100">
             ✕
