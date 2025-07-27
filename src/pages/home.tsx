@@ -34,7 +34,7 @@ function HomePage() {
   const [WS, setWs] = useState<WebSocket>();
   const [canMoveSprite, setCanMoveSprite] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [userName, setUserName] = useState("");
+  // const [userName, setUserName] = useState("");
   const [isOpenText, setIsOpenText] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [roomID, setRoomId] = useState("");
@@ -133,7 +133,7 @@ function HomePage() {
       console.log("the user data is ", result.data);
       if (result.data) {
         setUser(result.data);
-        setUserName(result.data.user.name);
+        // setUserName(result.data.user.name);
       }
     };
 
@@ -145,10 +145,10 @@ function HomePage() {
     const scene = phaserRef.current.scene as Game;
     const ws = new WebSocket("ws://localhost:3000");
     const myUsername = user?.user?.name;
-    let closed: boolean = true;
+    // let closed: boolean = true;
     // let prevTick = Date.now();
 
-    ws.onopen = (e) => {
+    ws.onopen = () => {
       const players = new Map<string, Player>();
       closed = false;
       console.log(roomID);
@@ -308,7 +308,6 @@ function HomePage() {
           messages={messages}
           onMessage={onMessage}
           userName={user.user.name}
-          WebSocket={WS}
           notify={notify}
         />
       )}

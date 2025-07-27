@@ -1,6 +1,13 @@
 import  { useEffect, useRef } from "react";
 
-export default function VideoComponent({ videoObj }) {
+interface props {
+  videoObj: {
+    id: string;
+    srcObject: MediaStream;
+  };
+}
+
+export default function VideoComponent({ videoObj }: props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     console.log("vide obj is ", videoObj);

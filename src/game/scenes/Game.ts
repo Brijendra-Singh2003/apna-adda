@@ -1,5 +1,5 @@
 import { EventBus } from '../EventBus';
-import { GameObjects, Scene,Geom } from 'phaser';
+import { Scene,Geom } from 'phaser';
 import * as Phaser from 'phaser';
 
 const WORLD_HEIGHT = 1200;
@@ -12,7 +12,8 @@ export class Game extends Scene {
     bombs?: Phaser.Physics.Arcade.Group;
     tables?: Phaser.Physics.Arcade.StaticGroup;
     chairs?: Phaser.Physics.Arcade.StaticGroup;
-    popupText?: Phaser.GameObjects.text;
+    popupText?: Phaser.GameObjects.Text;
+    trees?: Phaser.Physics.Arcade.Group;
     // platforms?: Phaser.Physics.Arcade.StaticGroup;
     cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
     score = 0;
@@ -22,6 +23,11 @@ export class Game extends Scene {
     vx: number = 0; 
     vy: number = 0;
     isInside: boolean = false;
+
+    darkZone?: Phaser.Geom.Rectangle;
+    darkCarpet?: Phaser.GameObjects.Rectangle;
+    darkZone2?: Phaser.Geom.Rectangle;
+    darkCarpet2?: Phaser.GameObjects.Rectangle;
 
     static onPlayerEnterZone?: ((a:string) => void);
     static onPlayerExitZone?: (() => void);
@@ -136,47 +142,42 @@ export class Game extends Scene {
          this.darkZone = new Geom.Rectangle(400, 250, 400, 300);
          this.darkCarpet = this.add.rectangle(600, 380, 400, 280, 0x000002, 0.5);
          this.physics.add.existing(this.darkCarpet, true);
-         this.darkCarpet.body.setSize(280, 280);
+         (this.darkCarpet.body as Phaser.Physics.Arcade.Body).setSize(280, 280);
          // carper for room 2
          this.darkZone2 = new Geom.Rectangle(1000, 400, 400, 280);
          this.darkCarpet2 = this.add.rectangle(1200, 600, 400, 280, 0x000002, 0.5);
          this.physics.add.existing(this.darkCarpet2, true);
-         this.darkCarpet2.body.setSize(280, 280);
-         this.darkCarpet2.body.setOffset(60, 0); 
+         (this.darkCarpet2.body as Phaser.Physics.Arcade.Body).setSize(280, 280);
+         (this.darkCarpet2.body as Phaser.Physics.Arcade.Body).setOffset(60, 0); 
         // Add overlap check
         
-        this.physics.add.overlap(this.player, this.darkZone, () => {
-            Game.onPlayerEnterZone("table"); 
+        this.physics.add.overlap(this.player, this.darkZone as any, () => {
+            Game.onPlayerEnterZone?.("table"); 
             this.isInside  = true;
-        }, null, this);
+        }, undefined, this);
 
-
-        this.physics.add.overlap(this.player, this.darkZone2, () => {
-            Game.onPlayerEnterZone("fountain"); 
+        this.physics.add.overlap(this.player, this.darkZone2 as any, () => {
+            Game.onPlayerEnterZone?.("fountain"); 
             console.log("andar hua");
             this.isInside  = true;
-        }, null, this);
+        }, undefined, this);
         
        
-        this.trees = this.physics.add.group({
-            key: 'tree',
-            repeat: 12,
-            setXY: { x: 40, y: 30, stepX: 100 },
-            createCallback: (tree) => {
-                tree.setScale(0.5); // Set the scale here
-                tree.refreshBody(); // Refresh the physics body if necessary
-            },
-        });
-
-        this.trees = this.physics.add.group({
-            key: 'tree',
-            repeat: 12,
-            setXY: { x: 40, y: 30, stepY: 100 },
-            createCallback: (tree) => {
-                tree.setScale(0.5); // Set the scale here
-                tree.refreshBody(); // Refresh the physics body if necessary
-            },
-        });
+        this.trees = this.physics.add.group();
+        
+        // Add trees horizontally
+        for (let i = 0; i < 13; i++) {
+            const tree = this.trees.create(40 + (i * 100), 30, 'tree');
+            tree.setScale(0.5);
+            tree.refreshBody();
+        }
+        
+        // Add trees vertically
+        for (let i = 0; i < 13; i++) {
+            const tree = this.trees.create(40, 30 + (i * 100), 'tree');
+            tree.setScale(0.5);
+            tree.refreshBody();
+        }
         
         
         // The player: GameObjects.Sprite and its settings
@@ -184,8 +185,8 @@ export class Game extends Scene {
         this.player.setScale(1.5);
         this.player.body?.setSize(16, 16);
         this.player.body?.setOffset(16, 28);
-        this.tables.body?.setSize(16,16);
-        this.chairs.body?.setSize(16,16);
+        // this.tables.body?.setSize(16,16);
+        // this.chairs.body?.setSize(16,16);
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.setBounce(0.2);
         this.cameras.main.setBackgroundColor("#dadada")

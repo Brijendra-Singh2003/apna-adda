@@ -12,7 +12,7 @@ export default function CallSection({
   socket,
   RoomId,
 }: {
-  socket: WebSocket;
+  socket?: WebSocket;
   RoomId: string;
 }) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -67,7 +67,7 @@ export default function CallSection({
             const offerDescription = await pc.createOffer();
             await pc.setLocalDescription(offerDescription);
 
-            socket.send(
+            socket?.send(
               JSON.stringify({
                 type: "offer",
                 receiverId: client,
@@ -109,7 +109,7 @@ export default function CallSection({
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
 
-          socket.send(
+          socket?.send(
             JSON.stringify({
               type: "answer",
               data: answer,
@@ -120,7 +120,7 @@ export default function CallSection({
 
           pc.onicecandidate = (event) => {
             if (event.candidate) {
-              socket.send(
+              socket?.send(
                 JSON.stringify({
                   type: "candidate",
                   data: event.candidate.toJSON(),
@@ -168,7 +168,7 @@ export default function CallSection({
 
           pc.onicecandidate = (event) => {
             if (event.candidate) {
-              socket.send(
+              socket?.send(
                 JSON.stringify({
                   type: "candidate",
                   data: event.candidate.toJSON(),
@@ -249,10 +249,10 @@ export default function CallSection({
       );
       hasJoined.current = true;
     }
-    socket.addEventListener("message", handleSocketMessages);
+    socket?.addEventListener("message", handleSocketMessages);
 
     return () => {
-      socket.removeEventListener("message", handleSocketMessages);
+      socket?.removeEventListener("message", handleSocketMessages);
     };
   }, [localStream, RoomId]);
 
