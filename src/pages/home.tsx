@@ -6,7 +6,8 @@ import Player from "../game/prefabs/Player";
 import ChatSection, { Message } from "../components/ChatSection";
 import CallSection from "../components/CallSection";
 import axios from "axios";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const socketUrl = import.meta.env.VITE_SOCKET_URL;
 // type MessageType = {
 //   id: number;
 //   text: string;
@@ -113,11 +114,11 @@ function HomePage() {
   };
 
   const handleGoogleLogOut = () => {
-    window.open("http://localhost:3000/logOut", "_self");
+    window.open(`${backendUrl}/logOut`, "_self");
   };
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:3000/auth/google", "_self");
+    window.open(`${backendUrl}/auth/google`, "_self");
   };
 
   useEffect(() => {
@@ -125,7 +126,7 @@ function HomePage() {
     // setUserName('JohnDoe');
     const fetchSession = async () => {
       const result = await axios.get(
-        "http://localhost:3000/auth/check-session",
+        `${backendUrl}/auth/check-session`,
         {
           withCredentials: true,
         }
@@ -143,7 +144,7 @@ function HomePage() {
 
     WS?.close();
     const scene = phaserRef.current.scene as Game;
-    const ws = new WebSocket("ws://localhost:3000");
+    const ws = new WebSocket(socketUrl);
     const myUsername = user?.user?.name;
     // let closed: boolean = true;
     // let prevTick = Date.now();
