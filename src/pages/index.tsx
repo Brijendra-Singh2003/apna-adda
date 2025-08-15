@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const LandingPage = () => {
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4">
       {/* Background Grid Pattern */}
       <img className="absolute object-cover object-center h-full w-full" src='/hero-bg.jpg' />
       
