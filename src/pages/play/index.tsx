@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
-import { Game } from "../game/scenes/Game";
-import { MainMenu } from "../game/scenes/MainMenu";
-import Player from "../game/prefabs/Player";
-import ChatSection, { Message } from "../components/ChatSection";
-import CallSection from "../components/CallSection";
+import { IRefPhaserGame, PhaserGame } from "../../game/PhaserGame";
+import { Game } from "../../game/scenes/Game";
+import { MainMenu } from "../../game/scenes/MainMenu";
+import Player from "../../game/prefabs/Player";
+import ChatSection, { Message } from "../../components/ChatSection";
+import CallSection from "../../components/CallSection";
 import axios from "axios";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const socketUrl = import.meta.env.VITE_SOCKET_URL;
