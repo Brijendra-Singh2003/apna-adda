@@ -52,7 +52,7 @@ const LandingPage = () => {
         
         {/* CTA Button */}
         <Link 
-          to="/play"
+          to="/dashboard"
           className="group inline-flex items-center space-x-2 bg-blue-600 text-primary-foreground px-8 py-4 rounded-full text-lg font-medium hover:bg-opacity-90 transition-all hover:scale-105 shadow-lg hover:shadow-xl"
         >
           <span>Enter Dashboard</span>
