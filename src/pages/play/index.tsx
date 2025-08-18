@@ -128,7 +128,7 @@ function HomePage() {
       const result = await axios.get(
         `${backendUrl}/auth/check-session`,
         {
-          withCredentials: true,
+        withCredentials: true,
         }
       );
       console.log("the user data is ", result.data);
