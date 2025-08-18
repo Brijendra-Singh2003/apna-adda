@@ -7,7 +7,9 @@ function Layout() {
     <UserContextProvider>
       <div>
         <Navbar />
-        <Outlet />
+        <main className="min-h-[calc(100svh-4.1rem)]">
+          <Outlet />
+        </main>
       </div>
     </UserContextProvider>
   );

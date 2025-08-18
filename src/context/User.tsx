@@ -1,11 +1,6 @@
 import { api } from "@/lib/constants";
 import React, { createContext, useEffect, useState } from "react";
 
-interface User {
-  name: string;
-  email: string;
-}
-
 interface UserContext {
   user: User | undefined;
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>;

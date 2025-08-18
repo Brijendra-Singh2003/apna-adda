@@ -120,7 +120,7 @@ export class Game extends Scene {
       
 
         // Debug physics bodies 
-        this.physics.world.createDebugGraphic();
+        // this.physics.world.createDebugGraphic();
     
 
 

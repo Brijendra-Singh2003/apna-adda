@@ -2,6 +2,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./pages/Layout";
 import Home from "./pages";
 import GamePage from "./pages/play";
+import Dashboard from "./pages/dashboard";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient();
 
 const BrowserRouter = createBrowserRouter([
   {
@@ -13,6 +18,10 @@ const BrowserRouter = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
         path: "/play",
         element: <GamePage />,
       },
@@ -21,7 +30,11 @@ const BrowserRouter = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={BrowserRouter} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={BrowserRouter} />
+    </QueryClientProvider>
+  );
 }
 
 export default App;
