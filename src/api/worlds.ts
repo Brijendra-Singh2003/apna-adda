@@ -1,11 +1,16 @@
-export async function getWorlds(user_id: string): Promise<World[]> {
-    console.log("getting user world of", user_id);
+import { api } from "@/lib/constants";
 
-    return [
-        {
-            _id: "park",
-            name: "Hello World!",
-            created_st: new Date().toDateString(),
-        },
-    ];
+export async function getWorlds(): Promise<World[]> {
+    const response = await api.get("/world");
+    return response.data;
+}
+
+export async function createWorld(newWorld: { name: string }) {
+    const response = await api.post("/world", newWorld);
+    console.log(response.data);
+}
+
+export async function removeWorld(worldId: string) {
+    const response = await api.delete("/world/" + worldId);
+    console.log(response);
 }

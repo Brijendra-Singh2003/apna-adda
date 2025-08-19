@@ -20,7 +20,7 @@ function Dashboard() {
     error,
     refetch,
   } = useQuery({
-    queryFn: () => getWorlds(user?._id ?? ""),
+    queryFn: getWorlds,
     queryKey: [user?._id, "worlds"],
     initialData: [],
     enabled: !!user?.email,
