@@ -1,5 +1,5 @@
 import { getWorlds, createWorld } from "@/api/worlds";
-import WorldCard from "@/components/world/worldCard";
+import WorldCard from "@/components/world/WorldCard";
 import userContext from "@/context/User";
 import { BACKEND_URL } from "@/lib/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
