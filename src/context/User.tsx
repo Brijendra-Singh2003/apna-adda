@@ -1,33 +1,32 @@
 import { api } from "@/lib/constants";
-import React, { createContext, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React, { createContext } from "react";
 
 interface UserContext {
   user: User | undefined;
-  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+  isLoading: boolean;
 }
 
 const userContext = createContext<UserContext>({
   user: undefined,
-  setUser: () => {},
+  isLoading: true,
 });
+
+async function getUser() {
+  const response = await api.get("/auth/check-session");
+  return response.data.user;
+}
 
 export const UserContextProvider: React.FC<{
   children: Readonly<React.ReactNode>;
 }> = ({ children }) => {
-  const [user, setUser] = useState<User>();
-
-  useEffect(() => {
-    api
-      .get("/auth/check-session")
-      .then((response) => setUser(response.data.user))
-      .catch((error) => {
-        console.error(error);
-        setUser(undefined);
-      });
-  }, []);
+  const { data: user, isLoading } = useQuery({
+    queryFn: getUser,
+    queryKey: ["user"],
+  });
 
   return (
-    <userContext.Provider value={{ user, setUser }}>
+    <userContext.Provider value={{ user, isLoading }}>
       {children}
     </userContext.Provider>
   );

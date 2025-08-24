@@ -5,6 +5,7 @@ import GamePage from "./pages/play";
 import Dashboard from "./pages/dashboard";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Notfound from "./pages/Notfound";
 
 export const queryClient = new QueryClient();
 
@@ -24,6 +25,10 @@ const BrowserRouter = createBrowserRouter([
       {
         path: "/play",
         element: <GamePage />,
+      },
+      {
+        path: "*",
+        element: <Notfound />,
       },
     ],
   },
