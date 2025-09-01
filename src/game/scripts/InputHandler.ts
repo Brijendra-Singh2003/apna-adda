@@ -11,8 +11,8 @@ export interface InputConfig {
 export class InputHandler {
   private scene: Scene;
   private player: Player;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private wasdKeys: {
+  private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasdKeys?: {
     W: Phaser.Input.Keyboard.Key;
     A: Phaser.Input.Keyboard.Key;
     S: Phaser.Input.Keyboard.Key;
@@ -135,19 +135,19 @@ export class InputHandler {
 
     // Handle vertical movement
     if (this.isUpPressed()) {
-      vy = -this.player.getSpeed();
+      vy = -this.player.getWalkSpeed();
       direction = "up";
     } else if (this.isDownPressed()) {
-      vy = this.player.getSpeed();
+      vy = this.player.getWalkSpeed();
       direction = "down";
     }
 
     // Handle horizontal movement
     if (this.isLeftPressed()) {
-      vx = -this.player.getSpeed();
+      vx = -this.player.getWalkSpeed();
       direction = "left";
     } else if (this.isRightPressed()) {
-      vx = this.player.getSpeed();
+      vx = this.player.getWalkSpeed();
       direction = "right";
     }
 
@@ -168,29 +168,29 @@ export class InputHandler {
 
     // Handle analog stick input
     if (Math.abs(leftStick.x) > threshold) {
-      vx = leftStick.x * this.player.getSpeed();
+      vx = leftStick.x * this.player.getWalkSpeed();
       direction = leftStick.x > 0 ? "right" : "left";
     }
 
     if (Math.abs(leftStick.y) > threshold) {
-      vy = leftStick.y * this.player.getSpeed();
+      vy = leftStick.y * this.player.getWalkSpeed();
       direction = leftStick.y > 0 ? "down" : "up";
     }
 
     // Handle D-pad input
     if (this.gamepad.left) {
-      vx = -this.player.getSpeed();
+      vx = -this.player.getWalkSpeed();
       direction = "left";
     } else if (this.gamepad.right) {
-      vx = this.player.getSpeed();
+      vx = this.player.getWalkSpeed();
       direction = "right";
     }
 
     if (this.gamepad.up) {
-      vy = -this.player.getSpeed();
+      vy = -this.player.getWalkSpeed();
       direction = "up";
     } else if (this.gamepad.down) {
-      vy = this.player.getSpeed();
+      vy = this.player.getWalkSpeed();
       direction = "down";
     }
 
@@ -202,28 +202,28 @@ export class InputHandler {
     return (
       (this.config.enableArrowKeys && this.cursors?.up.isDown) ||
       (this.config.enableWASD && this.wasdKeys?.W.isDown)
-    );
+    )!;
   }
 
   private isDownPressed(): boolean {
     return (
       (this.config.enableArrowKeys && this.cursors?.down.isDown) ||
       (this.config.enableWASD && this.wasdKeys?.S.isDown)
-    );
+    )!;
   }
 
   private isLeftPressed(): boolean {
     return (
       (this.config.enableArrowKeys && this.cursors?.left.isDown) ||
       (this.config.enableWASD && this.wasdKeys?.A.isDown)
-    );
+    )!;
   }
 
   private isRightPressed(): boolean {
     return (
       (this.config.enableArrowKeys && this.cursors?.right.isDown) ||
       (this.config.enableWASD && this.wasdKeys?.D.isDown)
-    );
+    )!;
   }
 
   public destroy(): void {

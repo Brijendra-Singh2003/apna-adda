@@ -1,11 +1,10 @@
 import { Scene } from "phaser";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private scene: Scene;
-  private speed: number;
+  private walkSpeed: number;
   private isMoving: boolean;
   private lastDirection: "down" | "left" | "up" | "right";
-  private state: "idle" | "walk";
+  private animationState: "idle" | "walk";
   private vx: number = 0;
   private vy: number = 0;
 
@@ -13,10 +12,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, texture);
 
     this.scene = scene;
-    this.speed = 160; // Using your PLAYER_VELOCITY constant value
+    this.walkSpeed = 160; // Using your PLAYER_VELOCITY constant value
     this.isMoving = false;
     this.lastDirection = "down";
-    this.state = "idle";
+    this.animationState = "idle";
 
     // Add to scene and physics
     scene.add.existing(this);
@@ -104,25 +103,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public moveUp(): void {
-    this.vy = -this.speed;
+    this.vy = -this.walkSpeed;
     this.lastDirection = "up";
     this.updateMovementState();
   }
 
   public moveDown(): void {
-    this.vy = this.speed;
+    this.vy = this.walkSpeed;
     this.lastDirection = "down";
     this.updateMovementState();
   }
 
   public moveLeft(): void {
-    this.vx = -this.speed;
+    this.vx = -this.walkSpeed;
     this.lastDirection = "left";
     this.updateMovementState();
   }
 
   public moveRight(): void {
-    this.vx = this.speed;
+    this.vx = this.walkSpeed;
     this.lastDirection = "right";
     this.updateMovementState();
   }
@@ -137,7 +136,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.updateMovementState();
   }
 
-  public stop(): void {
+  public stop2D() {
     this.vx = 0;
     this.vy = 0;
     this.updateMovementState();
@@ -151,11 +150,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Determine state
-    this.state = this.vx || this.vy ? "walk" : "idle";
-    this.isMoving = this.state === "walk";
+    this.animationState = this.vx || this.vy ? "walk" : "idle";
+    this.isMoving = this.animationState === "walk";
 
     // Play appropriate animation
-    this.play(this.state + "_" + this.lastDirection, true);
+    this.play(this.animationState + "_" + this.lastDirection, true);
 
     // Set velocity
     this.setVelocity(this.vx, this.vy);
@@ -176,7 +175,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public getState(): "idle" | "walk" {
-    return this.state;
+    return this.animationState;
   }
 
   public getVelocityX(): number {
@@ -187,15 +186,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.vy;
   }
 
-  public setSpeed(speed: number): void {
-    this.speed = speed;
+  public setWalkSpeed(speed: number): void {
+    this.walkSpeed = speed;
   }
 
-  public getSpeed(): number {
-    return this.speed;
+  public getWalkSpeed(): number {
+    return this.walkSpeed;
   }
 
-  // Method to handle manual velocity setting (for compatibility with your existing input system)
+  // Method to handle manual velocity setting (for compatibility with existing input system)
   public setManualVelocity(
     vx: number,
     vy: number,
@@ -211,7 +210,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.updateMovementState();
   }
 
-  // Method to reset velocities (call this at the start of each update cycle)
+  // Method to reset velocities (called at the start of each update cycle)
   public resetVelocities(): void {
     this.vx = 0;
     this.vy = 0;

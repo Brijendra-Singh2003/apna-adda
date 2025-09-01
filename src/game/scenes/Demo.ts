@@ -59,8 +59,8 @@ export class Demo extends Scene {
     }
 
     // Create player at spawn position
-    const playerSpawnX = 100; // Adjust based on your map
-    const playerSpawnY = 100; // Adjust based on your map
+    const playerSpawnX = 100; // TODO: Adjust based on map
+    const playerSpawnY = 100; // TODO: Adjust based on map
     this.player = new Player(this, playerSpawnX, playerSpawnY, "idle");
 
     // Set up collision between player and map layers
@@ -71,19 +71,11 @@ export class Demo extends Scene {
       this.physics.add.collider(this.player, layer2);
     }
 
-    // Create input handler with all input methods enabled
     this.inputHandler = new InputHandler(this, this.player, {
       enableWASD: true,
       enableArrowKeys: true,
-      enableTouch: true,
-      enableGamepad: true,
-    });
-
-    this.inputHandler = new InputHandler(this, this.player, {
-      enableWASD: true,
-      enableArrowKeys: true,
-      enableTouch: false, // Set to true if you want touch controls
-      enableGamepad: false, // Set to true if you want gamepad support
+      enableTouch: false,
+      enableGamepad: false,
     });
 
     this.cameras.main.setBackgroundColor("#000");
@@ -94,14 +86,10 @@ export class Demo extends Scene {
   }
 
   update() {
-    // Update input handler
     this.inputHandler.update();
-
-    // Update player
     this.player.update();
   }
 
-  // Clean up when scene is destroyed
   destroy() {
     if (this.inputHandler) {
       this.inputHandler.destroy();
