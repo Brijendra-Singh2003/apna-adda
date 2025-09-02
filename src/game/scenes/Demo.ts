@@ -4,14 +4,15 @@ import { InputHandler } from "../scripts/InputHandler";
 import { EventBus } from "../EventBus";
 
 export class Demo extends Scene {
-  private player!: Player;
+  public player!: Player;
   private inputHandler!: InputHandler;
+  private remotePlayers: Record<string, Player> = {};
 
   constructor() {
     super("Demo");
   }
 
-  preload() {
+  public preload() {
     // Load the map JSON
     this.load.tilemapTiledJSON("map", "/forUse/view1.tmj");
 
@@ -38,7 +39,7 @@ export class Demo extends Scene {
     });
   }
 
-  create() {
+  public create() {
     // Create the map
     const map = this.make.tilemap({ key: "map" });
 
@@ -85,15 +86,37 @@ export class Demo extends Scene {
     EventBus.emit("current-scene-ready", this);
   }
 
-  update() {
+  public update() {
     this.inputHandler.update();
     this.player.update();
+
+    for (const key in this.remotePlayers) {
+      this.remotePlayers[key].update();
+    }
   }
 
-  destroy() {
+  public addRemotePlayer(id: string, name: string, x: number, y: number, texture: string = "idle") {
+    const newRemotePlayer = new Player(this, x, y, texture, name);
+    this.remotePlayers[id] = newRemotePlayer;
+  }
+
+  public removeRemotePlayer(playerId: string) {
+    this.remotePlayers[playerId].destroy();
+    delete this.remotePlayers[playerId];
+  }
+
+  public getRemotePlayer(playerId: string) {
+    return this.remotePlayers[playerId];
+  }
+
+  public destroy() {
     if (this.inputHandler) {
       this.inputHandler.destroy();
     }
-    super.destroy();
+
+    for (const key in this.remotePlayers) {
+        this.remotePlayers[key].destroy();
+        delete this.remotePlayers[key];
+    }
   }
 }
