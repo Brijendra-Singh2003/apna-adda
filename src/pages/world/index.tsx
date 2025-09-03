@@ -5,22 +5,24 @@ import GameManager from "@/game/scripts/GameManager";
 import { SOCKET_URL } from "@/lib/constants";
 import { useContext, useEffect, useRef, useState } from "react";
 import Notfound from "../Notfound";
+import { useParams } from "react-router-dom";
 
 const GamePage = () => {
   const session = useContext(userContext);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [scene, setScene] = useState<Demo | null>(null);
+  const { roomId } = useParams<{ roomId: string }>();
 
   useEffect(() => {
-    if (!session.user?._id || !scene) return;
-    
+    if (!session.user?._id || !scene || !roomId) return;
+
     const user = session.user;
     const searchParams = new URLSearchParams({
       id: user._id,
       name: user.name,
     });
 
-    const ws = new WebSocket(`${SOCKET_URL}/roomId?${searchParams}`);
+    const ws = new WebSocket(`${SOCKET_URL}/${roomId}?${searchParams}`);
 
     ws.onopen = () => {
       const eventBus = new Phaser.Events.EventEmitter();
@@ -53,7 +55,7 @@ const GamePage = () => {
     return <div>Loading...</div>;
   }
 
-  if (!session.user?._id) {
+  if (!session.user?._id || !roomId) {
     return <Notfound />;
   }
 

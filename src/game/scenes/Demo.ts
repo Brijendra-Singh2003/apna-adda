@@ -25,15 +25,15 @@ export class Demo extends Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
-    this.load.spritesheet("dude", "assets/dude.png", {
+    this.load.spritesheet("dude", "/assets/dude.png", {
       frameWidth: 32,
       frameHeight: 48,
     });
-    this.load.spritesheet("walk", "Walk/walk.png", {
+    this.load.spritesheet("walk", "/Walk/walk.png", {
       frameWidth: 48,
       frameHeight: 64,
     });
-    this.load.spritesheet("idle", "Idle/idle.png", {
+    this.load.spritesheet("idle", "/Idle/idle.png", {
       frameWidth: 48,
       frameHeight: 64,
     });

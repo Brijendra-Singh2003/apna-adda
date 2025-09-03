@@ -27,6 +27,10 @@ const BrowserRouter = createBrowserRouter([
         element: <GamePage />,
       },
       {
+        path: "/play/:roomId",
+        element: <GamePage />,
+      },
+      {
         path: "*",
         element: <Notfound />,
       },
