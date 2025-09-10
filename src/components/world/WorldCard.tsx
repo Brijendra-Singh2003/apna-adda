@@ -8,8 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Ellipsis, Trash2Icon } from "lucide-react";
-import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
-import { Button } from "../ui/button";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getWorlds, removeWorld } from "@/api/worlds";
 import userContext from "@/context/User";
 
