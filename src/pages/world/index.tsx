@@ -11,10 +11,10 @@ const GamePage = () => {
   const session = useContext(userContext);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [scene, setScene] = useState<Demo | null>(null);
-  const { roomId } = useParams<{ roomId: string }>();
+  const { worldId } = useParams<{ worldId: string }>();
 
   useEffect(() => {
-    if (!session.user?._id || !scene || !roomId) return;
+    if (!session.user?._id || !scene || !worldId) return;
 
     const user = session.user;
     const searchParams = new URLSearchParams({
@@ -22,7 +22,7 @@ const GamePage = () => {
       name: user.name,
     });
 
-    const ws = new WebSocket(`${SOCKET_URL}/${roomId}?${searchParams}`);
+    const ws = new WebSocket(`${SOCKET_URL}/${worldId}?${searchParams}`);
 
     ws.onopen = () => {
       const eventBus = new Phaser.Events.EventEmitter();
@@ -55,7 +55,7 @@ const GamePage = () => {
     return <div>Loading...</div>;
   }
 
-  if (!session.user?._id || !roomId) {
+  if (!session.user?._id || !worldId) {
     return <Notfound />;
   }
 
