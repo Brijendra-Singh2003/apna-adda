@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { createWorld } from "@/api/worlds";
-import { queryClient } from "@/App";
+import { queryClient } from "@/lib/constants";
 import userContext from "@/context/User";
 
 type Props = {
