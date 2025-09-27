@@ -6,6 +6,7 @@ interface User {
 
 interface World {
     _id: string;
+    owner: string;
     name: string;
-    created_st: string;
+    createdAt: string;
 }

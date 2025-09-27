@@ -1,16 +1,18 @@
 import userContext from "@/context/User";
 import { IRefPhaserGame, PhaserGame } from "@/game/PhaserGame";
-import React, { useContext, useRef } from "react";
+import { useContext, useRef } from "react";
 
 const GamePage = () => {
   const session = useContext(userContext);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
 
   const currentScene = (scene: Phaser.Scene) => {
-    if (scene.scene.key === "Game") {
-      const GameScene = phaserRef.current?.scene;
-    }
+    console.log({ currentScene: scene.scene.key });
   };
+
+  if (session.isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

@@ -1,71 +1,66 @@
-import { getWorlds, createWorld } from "@/api/worlds";
-import WorldCard from "@/components/world/WorldCard";
-import userContext from "@/context/User";
+import React, { useMemo, useState } from "react";
+import { getWorlds } from "@/api/worlds";
+import WorldCard, { WorldSCardkeleton } from "@/components/world/WorldCard";
 import { BACKEND_URL } from "@/lib/constants";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import userContext from "@/context/User";
+import { useQuery } from "@tanstack/react-query";
 import {
-  Loader2Icon,
   LogInIcon,
   LucideRefreshCcw,
   PlusIcon,
+  SearchIcon,
 } from "lucide-react";
-import React from "react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import NewWorldFormDialog from "./NewWorldFormDialog";
+
 function Dashboard() {
+  const [searchTerm, setSearchTerm] = useState("");
   const session = React.useContext(userContext);
 
   const {
-    data: worlds,
+    data: worlds = [],
     isLoading,
     error,
     refetch,
   } = useQuery({
     queryFn: getWorlds,
     queryKey: [session.user?._id, "worlds"],
-    enabled: !!session.user?.email,
-    initialData: [],
+    enabled: !!session.user?._id,
   });
 
-  const createWorldMutation = useMutation({
-    mutationFn: createWorld,
-    onSuccess: () => {
-      refetch(); // refresh list after creation
-    },
-  });
-  if (isLoading || session.isLoading) {
+  const filteredWorlds = useMemo(() => {
+    if (!searchTerm) return worlds;
+    const keys = searchTerm.toLowerCase().split(" ");
+
+    return worlds.filter((world) => {
+      const worldName = world.name.toLowerCase();
+      return keys.every((key) => worldName.includes(key));
+    });
+  }, [worlds, searchTerm]);
+
+  if (!session.isLoading && !session.user?._id) {
     return (
-      <div className="p-4 container mx-auto">
-        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="bg-gray-400/20 rounded-xl shadowlg aspect-video"></div>
-          <div className="bg-gray-400/20 rounded-xl shadowlg aspect-video"></div>
-          <div className="bg-gray-400/20 rounded-xl shadowlg aspect-video"></div>
+      <div className="container mx-auto h-full min-h-96 flex items-center justify-center">
+        <div className="h-96 max-h-screen flex flex-col gap-4 items-center justify-center text-muted-foreground">
+          <h3 className="text-lg">You are logged out, please log in.</h3>
+          <Link
+            className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full cursor-pointer"
+            to={`${BACKEND_URL}/auth/google`}
+          >
+            <LogInIcon className="size-5" /> Login
+          </Link>
         </div>
       </div>
     );
   }
 
-  if (!session.user) {
+  if (isLoading || session.isLoading) {
     return (
-      <div className="container mx-auto h-full min-h-96 flex items-center justify-center">
-        <div className="h-96 max-h-screen flex flex-col gap-8 items-center justify-center">
-          <h3 className="text-3xl">You are logged out, please log in.</h3>
-          <Link
-            className="text-lg flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-full cursor-pointer"
-            to={`${BACKEND_URL}/auth/google`}
-          >
-            Login <LogInIcon />
-          </Link>
+      <div className="p-4 container max-w-7xl mx-auto">
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {WorldSCardkeleton}
+          {WorldSCardkeleton}
+          {WorldSCardkeleton}
         </div>
       </div>
     );
@@ -74,13 +69,15 @@ function Dashboard() {
   if (error) {
     return (
       <div className="container mx-auto h-full min-h-96 flex items-center justify-center">
-        <div className="flex flex-col gap-4 items-center">
-          <h3>Unable to load worlds. Please try again later.</h3>
+        <div className="flex flex-col gap-4 items-center text-muted-foreground">
+          <h3 className="text-lg">
+            Unable to load worlds. Please try again later.
+          </h3>
           <button
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md cursor-pointer"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full cursor-pointer"
             onClick={() => refetch()}
           >
-            Reload <LucideRefreshCcw className="size-4" />
+            <LucideRefreshCcw className="size-4" /> Reload
           </button>
         </div>
       </div>
@@ -89,63 +86,38 @@ function Dashboard() {
 
   return (
     <div className="p-4 container max-w-7xl mx-auto">
-      {worlds.length <= 0 ? (
-        <div className="h-96 max-h-screen flex flex-col gap-8 items-center justify-center">
-          <h3 className="text-3xl">You do not have any worlds yet</h3>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="text-lg flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-full cursor-pointer">
-                Create a World <PlusIcon />
-              </button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create a New World</DialogTitle>
-                <DialogDescription>
-                  Enter details about your new world.
-                </DialogDescription>
-              </DialogHeader>
+      <div className="px-4 flex gap-4 items-center justify-between">
+        <div className="w-full max-w-md flex border rounded-full overflow-hidden">
+          <input
+            className="w-full py-1.5 px-4 bg-transparent rounded-l-full focus:ring-1"
+            placeholder="Search"
+            name="q"
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+          <button className="w-1/6 min-w-fit px-3 bg-primary text-primary-foreground flex items-center justify-center">
+            <SearchIcon className="size-5" />
+          </button>
+        </div>
 
-              {/* Form Content */}
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const name = formData.get("name") as string;
-
-                  try {
-                    await createWorldMutation.mutateAsync({ name });
-                    e.currentTarget.reset(); // clear form
-                    document.getElementById("close-dialog")?.click(); // close dialog programmatically
-                  } catch (err) {
-                    console.error("Failed to create world", err);
-                  }
-                  // call mutation here (POST to backend)
-                }}
-                className="flex flex-col gap-4"
-              >
-                <Input name="name" placeholder="World Name" required />
-
-                <DialogFooter>
-                  <Button type="submit">
-                    {" "}
-                    {createWorldMutation.isPending ? (
-                      <>
-                        <Loader2Icon className="animate-spin"></Loader2Icon>
-                        creating...
-                      </>
-                    ) : (
-                      <>Create</>
-                    )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+        <NewWorldFormDialog>
+          <button className="px-4 py-2 flex items-center gap-1 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full cursor-pointer">
+            <PlusIcon className="size-5" />{" "}
+            <span className="hidden sm:inline">New World</span>
+          </button>
+        </NewWorldFormDialog>
+      </div>
+      {filteredWorlds?.length! <= 0 ? (
+        <div className="h-96 max-h-screen flex flex-col gap-4 items-center justify-center text-muted-foreground">
+          <h3 className="text-lg">No worlds found</h3>
+          <NewWorldFormDialog>
+            <button className="text-lg flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-full cursor-pointer">
+              Create a World
+            </button>
+          </NewWorldFormDialog>
         </div>
       ) : (
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {worlds.map((world) => (
+          {filteredWorlds?.map((world) => (
             <WorldCard key={world._id} world={world} />
           ))}
         </div>

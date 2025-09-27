@@ -152,10 +152,7 @@ export class Demo extends Scene {
   }
 
   update() {
-    // Update input handler
     this.inputHandler.update();
-
-    // Update player
     this.player.update();
 
     // Optional: Manual bounds checking (as backup)
