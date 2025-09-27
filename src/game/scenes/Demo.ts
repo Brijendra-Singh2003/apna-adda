@@ -6,20 +6,61 @@ import { EventBus } from "../EventBus";
 export class Demo extends Scene {
   private player!: Player;
   private inputHandler!: InputHandler;
+  private triggerZones: Phaser.Physics.Arcade.Group | undefined;
+
+  public isInside: boolean = false;
+
+  static onEnterZone: (zoneName: string) => void;
+  static onExitZone: () => void;
 
   constructor() {
     super("Demo");
   }
 
+  private setupManualTriggerZones(map: Phaser.Tilemaps.Tilemap) {
+    const objectLayer = map.getObjectLayer("chatZone");
+
+    if (!objectLayer) return;
+
+    this.triggerZones = this.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
+
+    objectLayer.objects.forEach((obj) => {
+      const zone = this.add
+        .zone(obj.x!, obj.y!, obj.width!, obj.height!)
+        .setOrigin(0, 0);
+
+      this.physics.world.enable(zone);
+      (zone.body as Phaser.Physics.Arcade.Body).setImmovable(true);
+
+      this.triggerZones!.add(zone);
+
+      // Collision/Overlap event
+      this.physics.add.overlap(
+        this.player as unknown as Phaser.Physics.Arcade.Sprite,
+        zone,
+        () => {
+          console.log("Player entered trigger zone:", obj);
+          EventBus.emit("player-enter-zone", obj.name || obj.id);
+        }
+      );
+      const graphics = this.add.graphics();
+      graphics.lineStyle(2, 0x00ff00, 1);
+      graphics.strokeRect(obj.x!, obj.y!, obj.width!, obj.height!);
+    });
+  }
+
   preload() {
     // Load the map JSON
-    this.load.tilemapTiledJSON("map", "/forUse/view1.tmj");
+    this.load.tilemapTiledJSON("map", "/assets/maps/parks.tmj");
 
-    // Load the tileset image (adjust the path to where the PNG really is)
-    this.load.image("WpTSrE", "/forUse/tileset/WpTSrE.png");
+    // Load the tileset images
+    this.load.image("floor-tiles", "/floor-tiles.png");
+    this.load.image("grassTile", "/grassTile.jpg");
 
-    // Load player sprite sheet (you'll need to add your player sprite)
-    // Example assuming a 16x16 sprite with 4x4 grid (16 frames total)
+    // Load player sprite sheets
     this.load.spritesheet("player", "/forUse/player.png", {
       frameWidth: 16,
       frameHeight: 16,
@@ -42,53 +83,70 @@ export class Demo extends Scene {
     // Create the map
     const map = this.make.tilemap({ key: "map" });
 
-    // Add the tileset (name must match "name" in your tmj)
-    const tileset: Phaser.Tilemaps.Tileset = map.addTilesetImage(
-      "WpTSrE",
-      "WpTSrE"
+    // Add the tilesets (names must match "name" in your tmj)
+    const grass_tileset: Phaser.Tilemaps.Tileset = map.addTilesetImage(
+      "grassTile",
+      "grassTile"
+    )!;
+    const floor_tileset: Phaser.Tilemaps.Tileset = map.addTilesetImage(
+      "floor-tiles",
+      "floor-tiles"
     )!;
 
-    // Create both layers
-    const layer1 = map.createLayer("Tile Layer 1", tileset, 0, 0);
-    const layer2 = map.createLayer("whatevs", tileset, 0, 0);
+    // Create the layer with both tilesets
+    const layer1 = map.createLayer(
+      "Tile Layer 1",
+      [grass_tileset, floor_tileset],
+      0,
+      0
+    );
+
+    // Set world bounds to match the map size
+    this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
     // Set collision properties for layers if needed
     if (layer1) {
-      // Example: set collision for specific tile IDs
+      // Example: set collision for specific tile IDs if you want certain tiles to be solid
       // layer1.setCollisionByProperty({ collides: true });
+      // layer1.setCollisionBetween(40, 41); // Example: make certain floor tiles collidable
     }
 
     // Create player at spawn position
-    const playerSpawnX = 100; // Adjust based on your map
-    const playerSpawnY = 100; // Adjust based on your map
+    const playerSpawnX = 200; // Adjust based on your map (avoid spawning at edge)
+    const playerSpawnY = 200; // Adjust based on your map (avoid spawning at edge)
     this.player = new Player(this, playerSpawnX, playerSpawnY, "idle");
+    this.setupManualTriggerZones(map);
 
-    // Set up collision between player and map layers
+    // Set up collision between player and map layers if needed
     if (layer1) {
-      this.physics.add.collider(this.player, layer1);
-    }
-    if (layer2) {
-      this.physics.add.collider(this.player, layer2);
+      // Only add this if you want the player to collide with certain tiles
+      // this.physics.add.collider(this.player, layer1);
     }
 
-    // Create input handler with all input methods enabled
+    // Create input handler
     this.inputHandler = new InputHandler(this, this.player, {
       enableWASD: true,
       enableArrowKeys: true,
-      enableTouch: true,
-      enableGamepad: true,
+      enableTouch: false,
+      enableGamepad: false,
     });
 
-    this.inputHandler = new InputHandler(this, this.player, {
-      enableWASD: true,
-      enableArrowKeys: true,
-      enableTouch: false, // Set to true if you want touch controls
-      enableGamepad: false, // Set to true if you want gamepad support
-    });
-
-    this.cameras.main.setBackgroundColor("#000");
+    // Camera setup
+    this.cameras.main.setBackgroundColor("#4a4a4a");
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+    // Optional: Set camera zoom for better view
+    this.cameras.main.setZoom(1);
+
+    // Debug: Show world bounds (remove in production)
+    if (process.env.NODE_ENV === "development") {
+      const graphics = this.add.graphics();
+      graphics.lineStyle(2, 0xff0000, 1);
+      graphics.strokeRect(0, 0, map.widthInPixels, map.heightInPixels);
+      console.log(`World bounds: ${map.widthInPixels} x ${map.heightInPixels}`);
+      console.log(`Player spawn: ${playerSpawnX}, ${playerSpawnY}`);
+    }
 
     EventBus.emit("current-scene-ready", this);
   }
@@ -99,13 +157,29 @@ export class Demo extends Scene {
 
     // Update player
     this.player.update();
+
+    // Optional: Manual bounds checking (as backup)
+    if (this.player) {
+      const bounds = this.physics.world.bounds;
+
+      // Clamp player position within world bounds
+      this.player.x = Phaser.Math.Clamp(
+        this.player.x,
+        bounds.x + this.player.displayWidth / 2,
+        bounds.x + bounds.width - this.player.displayWidth / 2
+      );
+
+      this.player.y = Phaser.Math.Clamp(
+        this.player.y,
+        bounds.y + this.player.displayHeight / 2,
+        bounds.y + bounds.height - this.player.displayHeight / 2
+      );
+    }
   }
 
-  // Clean up when scene is destroyed
   destroy() {
     if (this.inputHandler) {
       this.inputHandler.destroy();
     }
-    super.destroy();
   }
 }

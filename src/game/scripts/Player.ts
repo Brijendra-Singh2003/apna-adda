@@ -13,7 +13,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, texture);
 
     this.scene = scene;
-    this.speed = 160; // Using your PLAYER_VELOCITY constant value
+    this.speed = 64 * 3; // Using your PLAYER_VELOCITY constant value
     this.isMoving = false;
     this.lastDirection = "down";
     this.state = "idle";
@@ -24,7 +24,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Set physics properties to match your existing setup
     this.setCollideWorldBounds(true);
-    this.setScale(1.5);
+    this.setScale(2.25);
     this.setBounce(0.2);
 
     // Set body size and offset to match your existing player
