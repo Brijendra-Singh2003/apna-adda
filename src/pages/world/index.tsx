@@ -6,10 +6,12 @@ import { SOCKET_URL } from "@/lib/constants";
 import { useContext, useEffect, useRef, useState } from "react";
 import Notfound from "../Notfound";
 import { useParams } from "react-router-dom";
+import ChatSection2 from "@/components/ChatSection2";
 
 const GamePage = () => {
   const session = useContext(userContext);
   const phaserRef = useRef<IRefPhaserGame | null>(null);
+  const [canChat, setCanChat] = useState(false);
   const [scene, setScene] = useState<Demo | null>(null);
   const { worldId } = useParams<{ worldId: string }>();
 
@@ -23,7 +25,6 @@ const GamePage = () => {
     });
 
     const ws = new WebSocket(`${SOCKET_URL}/${worldId}?${searchParams}`);
-
     ws.onopen = () => {
       const eventBus = new Phaser.Events.EventEmitter();
       const gameManager = new GameManager(ws, eventBus, scene, user);
@@ -33,8 +34,26 @@ const GamePage = () => {
         eventBus.emit(type, data);
       };
 
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key == "e" || e.key == "E") {
+          setCanChat(true);
+          gameManager.enterRoom("1");
+        }
+
+        if (e.key == "l" || e.key == "L") {
+          setCanChat(false);
+          gameManager.exitRoom();
+        }
+      };
+
       ws.onclose = () => {
         gameManager.destroy();
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
       };
     };
 
@@ -62,6 +81,12 @@ const GamePage = () => {
   return (
     <div>
       <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+      {canChat && GameManager.instance && (
+        <ChatSection2
+          userName={session.user.name}
+          gameManager={GameManager.instance}
+        />
+      )}
     </div>
   );
 };
