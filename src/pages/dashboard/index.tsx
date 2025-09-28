@@ -92,7 +92,19 @@ function Dashboard() {
             className="w-full py-1.5 px-4 bg-transparent rounded-l-full focus:ring-1"
             placeholder="Search"
             name="q"
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="w-1/6 min-w-fit px-3 bg-primary text-primary-foreground flex items-center justify-center">
+            <SearchIcon className="size-5" />
+          </button>
+        </div>
+
+        <div className="w-full max-w-md flex border rounded-full overflow-hidden">
+          <input
+            className="w-full py-1.5 px-4 bg-transparent rounded-l-full focus:ring-1"
+            placeholder="Enter the world link"
+            name="q"
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="w-1/6 min-w-fit px-3 bg-primary text-primary-foreground flex items-center justify-center">
             <SearchIcon className="size-5" />
@@ -106,7 +118,7 @@ function Dashboard() {
           </button>
         </NewWorldFormDialog>
       </div>
-      {filteredWorlds?.length! <= 0 ? (
+      {filteredWorlds?.length <= 0 ? (
         <div className="h-96 max-h-screen flex flex-col gap-4 items-center justify-center text-muted-foreground">
           <h3 className="text-lg">No worlds found</h3>
           <NewWorldFormDialog>

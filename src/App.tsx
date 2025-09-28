@@ -3,11 +3,10 @@ import Layout from "./pages/Layout";
 import Home from "./pages";
 import Dashboard from "./pages/dashboard";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import Notfound from "./pages/Notfound";
 import GamePage from "./pages/world";
-
-export const queryClient = new QueryClient();
+import { queryClient } from "./lib/constants";
 
 const BrowserRouter = createBrowserRouter([
   {
